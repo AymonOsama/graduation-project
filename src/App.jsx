@@ -1,10 +1,11 @@
+// في ملف App.js مثلاً
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
-    <div className="h-screen bg-blue-600 flex items-center justify-center">
-      <h1 className="text-white text-4xl font-bold p-10 border-4 border-white rounded-xl">
-        لو الخلفية زرقاء يبقى كلو تمام! ✌️
-      </h1>
-    </div>
-  )
+    <>
+      <Toaster position="top-center" />
+      <YourRoutes /> 
+    </>
+  );
 }
-export default App
