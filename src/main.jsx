@@ -18,7 +18,7 @@ import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import SuccessHistory from './pages/AuthPages/successHisP';
 import { p, path } from 'framer-motion/client';
-import OurServices from './pages/ourServices';
+import OurServices from './pages/OurServices';
 import KnowOurTeam from './pages/KnowOurT';
 
 /**
