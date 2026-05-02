@@ -1,6 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, TrendingDown, Zap, Shield, Clock, Users, CheckCircle, ArrowRight, Star, DollarSign, Smartphone, Laptop, Home } from 'lucide-react';
+import {
+  FaSearch,
+  FaChartLine,
+  FaBolt,
+  FaShieldAlt,
+  FaClock,
+  FaUsers,
+  FaCheckCircle,
+  FaArrowRight,
+  FaStar,
+  FaDollarSign,
+  FaMobileAlt,
+  FaLaptop,
+  FaHome
+} from "react-icons/fa";
 
 const OurServices = () => {
   const [activeService, setActiveService] = useState(0);
@@ -9,7 +23,6 @@ const OurServices = () => {
   const mainServices = [
     {
       id: 0,
-      icon: DollarSign,
       title: 'Price Comparison',
       subtitle: 'Find the Lowest Price',
       description: 'We scan multiple online retailers to find you the best price for any product. Save time and money with our intelligent price tracking system.',
@@ -25,7 +38,6 @@ const OurServices = () => {
     },
     {
       id: 1,
-      icon: Smartphone,
       title: 'Specs Comparison',
       subtitle: 'Compare Features Side-by-Side',
       description: 'Detailed specifications comparison for electronics. See all features, performance metrics, and technical details in one place.',
@@ -41,7 +53,6 @@ const OurServices = () => {
     },
     {
       id: 2,
-      icon: TrendingDown,
       title: 'Smart Deals',
       subtitle: 'Discover Best Offers',
       description: 'Get notified about the best deals and discounts from your favorite stores. Never miss a sale again.',
@@ -88,32 +99,32 @@ const OurServices = () => {
   // Features
   const features = [
     {
-      icon: Search,
+      icon: FaSearch,
       title: 'Universal Search',
       desc: 'Search any product and instantly see all prices and specifications from major retailers'
     },
     {
-      icon: TrendingDown,
+      icon: FaChartLine,
       title: 'Lowest Price Guarantee',
       desc: 'We guarantee you\'re getting the best deal available with our real-time price updates'
     },
     {
-      icon: Clock,
+      icon: FaClock,
       title: '24/7 Monitoring',
       desc: 'Our system monitors prices 24/7 to catch the best deals before anyone else'
     },
     {
-      icon: Shield,
+      icon: FaShieldAlt,
       title: '100% Free Service',
       desc: 'Completely free to use. We don\'t charge for price comparisons or specifications'
     },
     {
-      icon: Zap,
+      icon: FaBolt,
       title: 'Instant Comparison',
       desc: 'Get results in seconds. No waiting, no complicated forms. Just search and compare'
     },
     {
-      icon: Users,
+      icon: FaUsers,
       title: 'Community Reviews',
       desc: 'Read aggregated reviews from thousands of users to make informed decisions'
     }
@@ -247,7 +258,7 @@ const OurServices = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-6xl md:text-8xl font-black mb-6 text-slate-900"
+          className="text-5xl md:text-7xl font-black mb-6 text-slate-900"
         >
           Smart Shopping, <span className="text-blue-600">Smart Savings</span>
         </motion.h1>
@@ -256,7 +267,7 @@ const OurServices = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-slate-600 text-xl md:text-2xl max-w-3xl mx-auto font-medium mb-12"
+          className="text-slate-600 text-lg md:text-xl max-w-3xl mx-auto font-medium mb-12"
         >
           Compare prices, specifications, and reviews across 500+ retailers. Find the best deals and never overpay again.
         </motion.p>
@@ -285,14 +296,14 @@ const OurServices = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-slate-900 text-center"
+            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
           >
             What We <span className="text-blue-600">Offer</span>
           </motion.h2>
 
           {/* Service Cards */}
           <motion.div
-            className="grid md:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -334,9 +345,9 @@ const OurServices = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="bg-white rounded-3xl p-12 border-2 border-blue-200 shadow-xl"
+              className="bg-white rounded-3xl p-8 md:p-12 border-2 border-blue-200 shadow-xl"
             >
-              <h3 className="text-4xl font-black text-slate-900 mb-8">
+              <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-8">
                 {mainServices[activeService].title} Benefits
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
@@ -348,7 +359,7 @@ const OurServices = () => {
                     transition={{ delay: idx * 0.1 }}
                     className="flex items-start gap-4 p-4 rounded-lg bg-blue-50"
                   >
-                    <CheckCircle size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+                    <FaCheckCircle size={24} className="text-blue-600 flex-shrink-0 mt-1" />
                     <span className="font-bold text-slate-800">{benefit}</span>
                   </motion.div>
                 ))}
@@ -380,13 +391,13 @@ const OurServices = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-slate-900 text-center"
+            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
           >
             How It <span className="text-blue-600">Works</span>
           </motion.h2>
 
           <motion.div
-            className="grid md:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -414,10 +425,10 @@ const OurServices = () => {
                   >
                     {item.step}
                   </motion.div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-slate-600">
+                  <p className="text-slate-600 text-sm">
                     {item.description}
                   </p>
                 </div>
@@ -425,9 +436,9 @@ const OurServices = () => {
                   <motion.div
                     animate={{ scale: [1, 1.1, 1] }}
                     transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                    className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2"
+                    className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2"
                   >
-                    <ArrowRight size={32} className="text-blue-600" />
+                    <FaArrowRight size={32} className="text-blue-600" />
                   </motion.div>
                 )}
               </motion.div>
@@ -448,13 +459,13 @@ const OurServices = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-slate-900 text-center"
+            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
           >
             Powerful <span className="text-blue-600">Features</span>
           </motion.h2>
 
           <motion.div
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -479,7 +490,7 @@ const OurServices = () => {
                   <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-600">
+                  <p className="text-slate-600 text-sm">
                     {feature.desc}
                   </p>
                 </motion.div>
@@ -501,13 +512,13 @@ const OurServices = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-slate-900 text-center"
+            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
           >
             Pricing <span className="text-blue-600">Plans</span>
           </motion.h2>
 
           <motion.div
-            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -527,7 +538,7 @@ const OurServices = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full py-3 px-6 bg-slate-900 text-white rounded-xl font-black hover:bg-slate-800 transition-colors mb-8"
+                className="w-full py-3 px-6 bg-slate-900 text-white rounded-xl font-black hover:bg-slate-800 transition-colors mb-8 cursor-pointer"
               >
                 Get Started
               </motion.button>
@@ -542,8 +553,8 @@ const OurServices = () => {
                       transition={{ delay: idx * 0.05 }}
                       className="flex items-center gap-3"
                     >
-                      <CheckCircle size={20} className="text-green-500 flex-shrink-0" />
-                      <span className="font-bold text-slate-800">{item.feature}</span>
+                      <FaCheckCircle size={20} className="text-green-500 flex-shrink-0" />
+                      <span className="font-bold text-slate-800 text-sm">{item.feature}</span>
                     </motion.div>
                   )
                 ))}
@@ -581,8 +592,8 @@ const OurServices = () => {
                     transition={{ delay: idx * 0.05 }}
                     className="flex items-center gap-3"
                   >
-                    <CheckCircle size={20} className="text-blue-100 flex-shrink-0" />
-                    <span className={`font-bold ${item.premium ? 'text-white' : 'text-blue-200'}`}>
+                    <FaCheckCircle size={20} className="text-blue-100 flex-shrink-0" />
+                    <span className={`font-bold text-sm ${item.premium ? 'text-white' : 'text-blue-200'}`}>
                       {item.feature}
                     </span>
                   </motion.div>
@@ -605,13 +616,13 @@ const OurServices = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-black text-slate-900 text-center"
+            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
           >
             Real-World <span className="text-blue-600">Examples</span>
           </motion.h2>
 
           <motion.div
-            className="grid md:grid-cols-2 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
@@ -636,7 +647,7 @@ const OurServices = () => {
                     💚 You Save: {useCase.saved}
                   </p>
                 </div>
-                <p className="text-slate-600 font-bold">
+                <p className="text-slate-600 font-bold text-sm">
                   Process: {useCase.process}
                 </p>
               </motion.div>
@@ -662,7 +673,7 @@ const OurServices = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl font-black text-white mb-4"
+              className="text-3xl md:text-5xl font-black text-white mb-4"
             >
               Start Saving Today
             </motion.h2>

@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Linkedin, Twitter, Award, Briefcase, Heart, Code } from 'lucide-react';
+import { 
+  FaLinkedin, 
+  FaTwitter, 
+  FaEnvelope, 
+  FaAward, 
+  FaBriefcase, 
+  FaHeart, 
+  FaCode 
+} from "react-icons/fa";
 
 const KnowOurTeam = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
 
-  // Team Members Data
   const teamMembers = [
     {
       id: 1,
@@ -152,7 +159,7 @@ const KnowOurTeam = () => {
       id: 8,
       name: 'Noor Al-Harbi',
       role: 'Head of Engineering',
-      emoji: '👩���💻',
+      emoji: '👩‍💻',
       bio: 'Engineering leader managing 100+ developers. Built systems that handle millions of comparisons daily.',
       specialty: 'Engineering & Infrastructure',
       expertise: ['Team Leadership', 'System Design', 'Performance Optimization', 'DevOps'],
@@ -326,7 +333,7 @@ const KnowOurTeam = () => {
                       className="text-blue-600 hover:text-blue-700 p-2 rounded-lg hover:bg-blue-50 transition-all"
                       title="LinkedIn"
                     >
-                      <Linkedin size={16} />
+                      <FaLinkedin size={16} />
                     </motion.a>
                     <motion.a
                       whileHover={{ scale: 1.2 }}
@@ -334,7 +341,7 @@ const KnowOurTeam = () => {
                       className="text-blue-400 hover:text-blue-500 p-2 rounded-lg hover:bg-blue-50 transition-all"
                       title="Twitter"
                     >
-                      <Twitter size={16} />
+                      <FaTwitter size={16} />
                     </motion.a>
                     <motion.a
                       whileHover={{ scale: 1.2 }}
@@ -342,7 +349,7 @@ const KnowOurTeam = () => {
                       className="text-slate-600 hover:text-slate-700 p-2 rounded-lg hover:bg-slate-100 transition-all"
                       title="Email"
                     >
-                      <Mail size={16} />
+                      <FaEnvelope size={16} />
                     </motion.a>
                   </div>
 
@@ -351,7 +358,7 @@ const KnowOurTeam = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedMember(member)}
-                    className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-bold text-xs hover:shadow-lg transition-all"
+                    className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-lg font-bold text-xs hover:shadow-lg transition-all cursor-pointer"
                   >
                     View Profile
                   </motion.button>
@@ -387,10 +394,10 @@ const KnowOurTeam = () => {
             viewport={{ once: true, margin: "-100px" }}
           >
             {[
-              { icon: Code, title: 'Innovation', desc: 'Pushing boundaries to create solutions that matter' },
-              { icon: Heart, title: 'Integrity', desc: 'Honest, transparent, and ethical in everything we do' },
-              { icon: Award, title: 'Excellence', desc: 'Striving for the highest quality in all we create' },
-              { icon: Briefcase, title: 'Collaboration', desc: 'Strong teamwork and diverse perspectives' }
+              { icon: FaCode, title: 'Innovation', desc: 'Pushing boundaries to create solutions that matter' },
+              { icon: FaHeart, title: 'Integrity', desc: 'Honest, transparent, and ethical in everything we do' },
+              { icon: FaAward, title: 'Excellence', desc: 'Striving for the highest quality in all we create' },
+              { icon: FaBriefcase, title: 'Collaboration', desc: 'Strong teamwork and diverse perspectives' }
             ].map((value, idx) => {
               const Icon = value.icon;
               return (
@@ -515,7 +522,7 @@ const KnowOurTeam = () => {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   onClick={() => setSelectedMember(null)}
-                  className="text-2xl text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 ml-4"
+                  className="text-2xl text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0 ml-4 cursor-pointer"
                 >
                   ✕
                 </motion.button>
@@ -574,25 +581,25 @@ const KnowOurTeam = () => {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   href={selectedMember.social.linkedin}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors text-sm cursor-pointer"
                 >
-                  <Linkedin size={18} />
+                  <FaLinkedin size={18} />
                   LinkedIn
                 </motion.a>
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   href={selectedMember.social.twitter}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-400 text-white rounded-lg font-bold hover:bg-blue-500 transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-blue-400 text-white rounded-lg font-bold hover:bg-blue-500 transition-colors text-sm cursor-pointer"
                 >
-                  <Twitter size={18} />
+                  <FaTwitter size={18} />
                   Twitter
                 </motion.a>
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   href={`mailto:${selectedMember.social.email}`}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-600 text-white rounded-lg font-bold hover:bg-slate-700 transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-slate-600 text-white rounded-lg font-bold hover:bg-slate-700 transition-colors text-sm cursor-pointer"
                 >
-                  <Mail size={18} />
+                  <FaEnvelope size={18} />
                   Email
                 </motion.a>
               </div>
