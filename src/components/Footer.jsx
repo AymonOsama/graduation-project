@@ -5,16 +5,14 @@ const Footer = () => {
 
   const footerLinks = {
     Company: [
-      { name: 'About Landio', href: '#' },
-      { name: 'Contact & Support', href: '#' },
-      { name: 'Success History', href: '#' },
-      { name: 'Setting & Privacy', href: '#' },
+      { name: 'About Us', href: '/about-us' },
+      { name: 'Contact & Support', href: '/contact' },
+      { name: 'Success History', href: '/success-history' },
     ],
     'Quick Links': [
-      { name: 'Premium Support', href: '#' },
-      { name: 'Our Services', href: '#' },
-      { name: 'Know Our Team', href: '#' },
-      { name: 'Download App', href: '#' },
+      { name: 'Our Services', href: '/our-services' },
+      { name: 'Know Our Team', href: '/our-team' },
+      { name: 'Download App', href: '/download-app' },
     ]
   };
 

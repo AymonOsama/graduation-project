@@ -1,104 +1,152 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { ExternalLink, ShieldCheck, TrendingDown } from 'lucide-react';
+"use client";
 
-const ProductCard = () => {
-    // أنيميشن ظهور العناصر داخل الكرت
-    const childVariants = {
-        hidden: { opacity: 0, y: 10 },
-        visible: { opacity: 1, y: 0 }
-    };
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { ExternalLink, Heart, Star, TrendingDown, Zap } from "lucide-react";
 
-    return (
-        <motion.div 
-            // حركة الظهور عند التحميل (Fade in + Slide up)
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-50px" }}
-            variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut", staggerChildren: 0.1 } }
-            }}
-            // حركة الـ Hover للكرت بالكامل
-            whileHover={{ y: -12, transition: { duration: 0.3, ease: "easeInOut" } }}
-            className="group bg-white border border-slate-100 rounded-[2.5rem] p-5 shadow-sm hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.15)] transition-shadow duration-500 flex flex-col h-[600px] relative"
-        >
-            {/* 1. IMAGE AREA */}
-            <div className="relative h-[320px] bg-slate-50 rounded-[2rem] overflow-hidden mb-6">
-                <motion.img 
-                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=600" 
-                    alt="Product"
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 ease-out"
-                />
-                
-                {/* Brand Badge with Hover Slide */}
-                <motion.div 
-                    whileHover={{ x: 5 }}
-                    className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full shadow-sm border border-white/50 flex items-center gap-2"
-                >
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Sony</span>
-                </motion.div>
+const ProductCard = ({
+  name = "Unknown Product", 
+  price = 0, 
+  originalPrice = 0, // <--- لازم تضيف ده هنا عشان الكود ميفصلش
+  image = "", 
+  category = "General", 
+  isNew = false,
+  discount = 0,
+  rating = 4.5, 
+  reviews = 120, 
+  lowestStore = "Comparo Store",
+  storesCount = 5,
+}) => {
+  const [isLiked, setIsLiked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-                {/* Hot Deal Tag - New logic for price comparison */}
-                <div className="absolute top-4 right-4 bg-green-500 text-white p-2 rounded-xl shadow-lg transform rotate-12 group-hover:rotate-0 transition-transform duration-300">
-                    <TrendingDown size={18} />
-                </div>
+  // منطق حماية: لو السعر القديم مش مبعوت، بنخليه نفس السعر الحالي عشان الـ Logic يفضل سليم
+  const displayOriginalPrice = originalPrice || price;
 
-                {/* Best Price Overlay (Animated) */}
-                <motion.div 
-                    initial={{ y: 20, opacity: 0 }}
-                    whileHover={{ y: 0, opacity: 1 }}
-                    className="absolute bottom-4 left-4 right-4 bg-blue-600/90 backdrop-blur-lg p-3 rounded-2xl flex justify-between items-center"
-                >
-                    <span className="text-white text-[10px] font-black uppercase tracking-widest">Ai Market Scan</span>
-                    <ShieldCheck size={16} className="text-blue-200" />
-                </motion.div>
+  return (
+    <motion.div
+      className="group relative"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      {/* 1. GLOW EFFECT */}
+      <motion.div
+        className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 blur-xl transition-all"
+        animate={{ opacity: isHovered ? 0.4 : 0 }}
+        transition={{ duration: 0.3 }}
+      />
+
+      {/* 2. MAIN CARD CONTAINER */}
+      <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10">
+        
+        {/* IMAGE SECTION */}
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+          
+          {/* BADGES */}
+          <div className="absolute top-5 left-5 z-10 flex flex-col gap-2">
+            {isNew && (
+              <motion.span
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="flex items-center gap-1 rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black text-white shadow-lg shadow-blue-600/30"
+              >
+                <Zap className="h-3 w-3" /> NEW
+              </motion.span>
+            )}
+            {discount > 0 && (
+              <motion.span
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="rounded-full bg-emerald-500 px-3 py-1 text-[10px] font-black text-white shadow-lg shadow-emerald-500/30"
+              >
+                -{discount}%
+              </motion.span>
+            )}
+          </div>
+
+          {/* WISHLIST BUTTON */}
+          <motion.button
+            onClick={() => setIsLiked(!isLiked)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+          >
+            <Heart className={`h-5 w-5 transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-slate-400"}`} />
+          </motion.button>
+
+          {/* PRODUCT IMAGE */}
+          <motion.div
+            className="relative h-full w-full flex items-center justify-center"
+            animate={{ y: isHovered ? -12 : 0, rotateY: isHovered ? 10 : 0 }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+          >
+            <img
+              src={image}
+              alt={name}
+              className="max-h-full max-w-full object-contain drop-shadow-2xl transition-transform duration-700"
+              onError={(e) => { e.target.src = "https://via.placeholder.com/400x400?text=No+Image"; }} // حماية لو الصورة مكسورة
+            />
+          </motion.div>
+
+          {/* COMPARE OVERLAY */}
+          <motion.div
+            className="absolute inset-x-5 bottom-5"
+            initial={{ y: 40, opacity: 0 }}
+            animate={{ y: isHovered ? 0 : 40, opacity: isHovered ? 1 : 0 }}
+          >
+            <button className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 font-bold text-white shadow-xl shadow-blue-600/20 hover:bg-blue-700">
+              <ExternalLink className="h-4 w-4" /> Compare {storesCount} Stores
+            </button>
+          </motion.div>
+        </div>
+
+        {/* CONTENT SECTION */}
+        <div className="p-6">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{category}</span>
+
+          <h3 className="mt-2 text-xl font-black text-slate-900 group-hover:text-blue-600 leading-tight line-clamp-1">
+            {name}
+          </h3>
+
+          {/* Rating */}
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
+              ))}
             </div>
+            <span className="text-xs font-bold text-slate-900">{rating}</span>
+            <span className="text-xs text-slate-400">({reviews.toLocaleString()})</span>
+          </div>
 
-            {/* 2. PRODUCT INFO */}
-            <div className="flex flex-col flex-grow px-2">
-                <motion.h3 
-                    variants={childVariants}
-                    className="font-black text-2xl text-slate-900 leading-tight group-hover:text-blue-600 transition-colors mb-2"
-                >
-                    WH-1000XM5 <br/> Wireless Headphones
-                </motion.h3>
-                
-                <motion.p 
-                    variants={childVariants}
-                    className="text-slate-500 text-sm line-clamp-2 mb-6 font-medium italic"
-                >
-                    Industry-leading noise canceling with two processors and 8 microphones.
-                </motion.p>
+          {/* Price */}
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-slate-900 tracking-tighter">
+              ${price?.toLocaleString()}
+            </span>
+            {displayOriginalPrice > price && (
+              <span className="text-sm font-medium text-slate-400 line-through">
+                ${displayOriginalPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
 
-                {/* 3. PRICE SECTION */}
-                <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between">
-                    <motion.div variants={childVariants}>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                            <span className="w-1 h-1 bg-green-500 rounded-full" /> Lowest Price
-                        </p>
-                        <div className="flex items-baseline gap-1">
-                            <span className="text-3xl font-black text-slate-900 tracking-tighter group-hover:text-blue-600 transition-colors">$349.00</span>
-                            <span className="text-blue-600 font-black text-xs uppercase tracking-tighter">Live</span>
-                        </div>
-                    </motion.div>
-                    
-                    {/* Interactive Compare Button */}
-                    <motion.button 
-                        whileHover={{ scale: 1.1, rotate: -5 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="bg-slate-900 text-white p-4 rounded-2xl transition-colors hover:bg-blue-600 cursor-pointer shadow-xl shadow-slate-200 hover:shadow-blue-200"
-                    >
-                        <ExternalLink size={20} />
-                    </motion.button>
-                </div>
+          {/* Footer Detail */}
+          <div className="mt-5 flex items-center justify-between border-t border-slate-50 pt-4">
+            <div className="flex items-center gap-2">
+              <TrendingDown className="h-4 w-4 text-emerald-500" />
+              <span className="text-[11px] font-bold text-slate-600">
+                Lowest at <span className="text-emerald-500 font-black">{lowestStore}</span>
+              </span>
             </div>
-
-            {/* Subtle Gradient Glow on Hover */}
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-50/0 to-blue-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem] -z-10" />
-        </motion.div>
-    );
+            <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-tight">
+              {storesCount} Sellers
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
 };
 
 export default ProductCard;

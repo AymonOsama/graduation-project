@@ -13,6 +13,14 @@ import ForgetPassword from './pages/AuthPages/ForgetPassword';
 import Home from './pages/Home';
 import NavBar from './components/NavBar';
 import Footer from './components/Footer';
+import ProfilePage from './pages/ProfilePage';
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
+import SuccessHistory from './pages/AuthPages/successHisP';
+import { p, path } from 'framer-motion/client';
+import OurServices from './pages/ourServices';
+import KnowOurTeam from './pages/KnowOurT';
+
 /**
  * MAIN LAYOUT COMPONENT
  * Provides a consistent structure across all protected pages.
@@ -98,6 +106,30 @@ const router = createBrowserRouter([
         path: "/home",
         element: <Home />,
       },
+      {
+        path: "/profile",
+        element: <ProfilePage />,
+      },
+      {
+        path: "/about-us",
+        element: <AboutUs />,
+      },
+      {
+        path: "/contact",
+        element: <ContactUs />,
+      },
+      {
+        path: "/success-history",
+        element: <SuccessHistory />,  
+      },
+      {
+        path: "/our-services",
+        element: <OurServices />,
+      },
+      {
+        path: "/our-team",
+        element: <KnowOurTeam />,
+      }
       // You can easily add more routes here (e.g., /profile, /settings)
     ],
   },
