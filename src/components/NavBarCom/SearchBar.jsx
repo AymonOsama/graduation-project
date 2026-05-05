@@ -3,11 +3,13 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const SearchBar = () => {
     const [isFocused, setIsFocused] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const inputRef = useRef(null);
+    const navigate = useNavigate();
 
     /**
      * ENHANCED EASING CURVES
@@ -22,14 +24,22 @@ const SearchBar = () => {
 
     const handleSubmit = useCallback((e) => {
         e.preventDefault();
-        console.log('Search:', searchValue);
-    }, [searchValue]);
+        
+        if (searchValue.trim()) {
+            // التعديل هنا: استخدام المسار الصحيح المطابق للراوتر
+            // نستخدم /all كـ slug افتراضي عند البحث العام
+            navigate(`/categoriesPgPd/all?query=${encodeURIComponent(searchValue.trim())}`);
+            
+            setIsFocused(false);
+            inputRef.current?.blur();
+        }
+    }, [searchValue, navigate]);
 
     return (
         <div className="hidden md:flex flex-1 justify-center px-4 max-w-lg relative">
             <form onSubmit={handleSubmit} className="relative w-full group">
                 
-                {/* ✨ MAIN CONTAINER - Multi-Layer Enhancement */}
+                {/* ✨ MAIN CONTAINER */}
                 <motion.div 
                     className="relative z-10 w-full rounded-2xl overflow-hidden"
                     animate={{
@@ -53,13 +63,15 @@ const SearchBar = () => {
                         onChange={(e) => setSearchValue(e.target.value)}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(false)}
-                        className="w-full bg-transparent outline-none text-sm font-bold py-4 pl-14 pr-12 cursor-text placeholder:tracking-widest transition-colors"
+                        className={`w-full bg-transparent outline-none text-sm font-bold py-4 pl-14 pr-12 cursor-text placeholder:tracking-widest transition-colors ${
+                            isFocused ? 'placeholder:text-slate-400/60 text-slate-900' : 'placeholder:text-slate-100/50 text-slate-100'
+                        }`}
                         animate={{ 
                             color: isFocused ? "#0f172a" : "#f1f5f9" 
                         }}
                     />
 
-                    {/* 🔍 SEARCH ICON - Turbo Animation */}
+                    {/* 🔍 SEARCH ICON */}
                     <motion.div 
                         className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none"
                         animate={{ 
@@ -95,7 +107,7 @@ const SearchBar = () => {
                         )}
                     </AnimatePresence>
 
-                    {/* 💫 NITRO SWEEP - Dynamic Light Beam */}
+                    {/* 💫 NITRO SWEEP EFFECT */}
                     <AnimatePresence>
                         {isFocused && (
                             <motion.div 
@@ -113,7 +125,7 @@ const SearchBar = () => {
                         )}
                     </AnimatePresence>
 
-                    {/* 🌊 WAVE RIPPLE BORDER */}
+                    {/* 🌊 WAVE RIPPLE */}
                     <AnimatePresence>
                         {isFocused && (
                             <motion.div 
@@ -129,7 +141,7 @@ const SearchBar = () => {
                     </AnimatePresence>
                 </motion.div>
 
-                {/* 🔥 UNDERGLOW - Pulsing Base Glow */}
+                {/* 🔥 UNDERGLOW */}
                 <motion.div 
                     className="absolute -bottom-2 left-1/2 -translate-x-1/2 h-1 rounded-full blur-lg z-0"
                     animate={{ 
@@ -143,7 +155,7 @@ const SearchBar = () => {
                     }}
                 />
 
-                {/* 🎆 TOP GLOW - Background Aura */}
+                {/* 🎆 TOP AURA */}
                 <motion.div 
                     className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-8 bg-blue-400 rounded-full blur-3xl z-0"
                     animate={{ 
@@ -153,13 +165,6 @@ const SearchBar = () => {
                     transition={{ duration: 0.5 }}
                 />
             </form>
-
-            <style jsx>{`
-                input::placeholder {
-                    color: ${isFocused ? "rgba(15, 23, 42, 0.4)" : "rgba(203, 213, 225, 0.5)"};
-                    transition: color 0.4s ease;
-                }
-            `}</style>
         </div>
     );
 };

@@ -23,34 +23,41 @@ const MegaMenu = ({ isOpen, setIsOpen, categories }) => {
                                         {section.title}
                                     </h3>
                                     <div className="grid gap-2">
-                                        {section.items.map((item, i) => (
-                                            <Link 
-                                                key={i} 
-                                                to={item.path}
-                                                onClick={() => setIsOpen(false)}
-                                                className="flex items-start gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-all group/item"
-                                            >
-                                                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
-                                                    {item.icon}
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-900">{item.name}</p>
-                                                    <p className="text-xs text-gray-500 font-medium">{item.desc}</p>
-                                                </div>
-                                            </Link>
-                                        ))}
+                                        {section.items.map((item, i) => {
+                                            // التحويل لـ slug عشان يطابق الـ Route اللي في الـ Main
+                                            const urlSlug = item.name.toLowerCase().replace(/\s+/g, '-');
+
+                                            return (
+                                                <Link 
+                                                    key={i} 
+                                                    // التعديل الجوهري هنا: نستخدم المسار الجديد مع الـ slug
+                                                    to={`/categoriesPgPd/${urlSlug}`}
+                                                    onClick={() => setIsOpen(false)}
+                                                    className="flex items-start gap-4 p-3 rounded-2xl hover:bg-gray-50 transition-all group/item"
+                                                >
+                                                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover/item:bg-blue-600 group-hover/item:text-white transition-colors">
+                                                        {item.icon}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-bold text-gray-900">{item.name}</p>
+                                                        <p className="text-xs text-gray-500 font-medium">{item.desc}</p>
+                                                    </div>
+                                                </Link>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))}
                         </div>
 
+                        {/* Featured Section */}
                         <div className="col-span-4 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
                             <div className="relative z-10">
                                 <span className="bg-white/20 text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-widest">Featured</span>
                                 <h4 className="text-2xl font-black mt-4 leading-tight">Build Your <br/> Dream Rig</h4>
                                 <p className="text-blue-100 text-xs mt-2 font-medium">Use our comparison tool to find the best hardware deals.</p>
                             </div>
-                            <Link to="/components" onClick={() => setIsOpen(false)} className="relative z-10 mt-6 bg-white text-blue-600 text-center py-3 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors">
+                            <Link to="/categories" onClick={() => setIsOpen(false)} className="relative z-10 mt-6 bg-white text-blue-600 text-center py-3 rounded-xl font-bold text-sm hover:bg-blue-50 transition-colors">
                                 View All Categories
                             </Link>
                             <Box size={150} className="absolute -right-10 -bottom-10 text-white/10 rotate-12" />

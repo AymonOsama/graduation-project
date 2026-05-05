@@ -2,10 +2,12 @@ import { Outlet } from 'react-router-dom';
 import NavBar from '../components/NavBar'; 
 // لو الـ Footer في نفس فولدر الـ NavBar، يبقى المسار لازم يكون كدا:
 import Footer from '../components/Footer';
+import ScrollToTop from '../components/ScrollToTop'; // تأكد من المسار الصحيح لهذا المكون 
 
 const MainLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <ScrollToTop />
       {/* الـ NavBar ثابت فوق */}
       <NavBar />
       

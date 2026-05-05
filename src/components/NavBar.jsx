@@ -72,6 +72,8 @@ const NavBar = () => {
                         </Link>
                     </div>
 
+                    {/* --- SearchBar كـ Child Component --- */}
+
                     <SearchBar />
 
                     <div className="flex items-center space-x-2 md:space-x-8">
@@ -98,10 +100,10 @@ const NavBar = () => {
 
                         {/* --- Actions --- */}
                         <div className="flex items-center space-x-1 md:space-x-4 border-l pl-2 md:pl-8 border-gray-200">
-                            <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
+                            <Link to="/favorites" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
                                 <Heart size={20} className="group-hover:text-red-500" />
                                 <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full font-bold">3</span>
-                            </button>
+                            </Link>
 
                             {/* User Menu Child */}
                             <UserMenu 

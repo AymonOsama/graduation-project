@@ -4,11 +4,9 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 
 const Section4 = () => {
-  // ref للتحكم في السلايدر (scroll)
   const scrollRef = useRef(null);
-
-  // state لتخزين المنتجات
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // =========================
   // 🔹 Fetch Products
@@ -20,20 +18,19 @@ const Section4 = () => {
           'https://api.escuelajs.co/api/v1/products?offset=0&limit=12'
         );
 
-        // تنظيف الداتا قبل التخزين (best practice)
-        const cleanedData = data.map((item) => ({
-          id: item.id,
-          title: item.title,
-          price: item.price,
-          image:
-            item.images?.[0]?.replace(/[\[\]"]/g, '') ||
-            'https://via.placeholder.com/400',
-          category: item.category?.name || 'Unknown',
+        // الحفاظ على هيكل البيانات كما يتوقعه الـ ProductCard الجديد
+        const formattedData = data.map((item) => ({
+          ...item,
+          images: [
+            item.images?.[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/400'
+          ]
         }));
 
-        setProducts(cleanedData);
+        setProducts(formattedData);
       } catch (error) {
         console.error('❌ Error fetching products:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -45,10 +42,7 @@ const Section4 = () => {
   // =========================
   const scroll = (direction) => {
     if (!scrollRef.current) return;
-
     const { clientWidth } = scrollRef.current;
-
-    // تحديد الاتجاه (يمين / شمال)
     const offset = direction === 'left' ? -clientWidth : clientWidth;
 
     scrollRef.current.scrollBy({
@@ -57,16 +51,21 @@ const Section4 = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="py-24 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-4 font-bold text-gray-400 uppercase tracking-widest text-xs">Loading Favorites...</p>
+      </div>
+    );
+  }
+
   return (
     <section className="py-24 bg-white overflow-hidden font-sans">
       <div className="container mx-auto px-6 lg:px-12">
         
-        {/* =========================
-            🔹 Header Section
-        ========================= */}
-        <div className="flex justify-between items-end mb-16">
-          
-          {/* Title */}
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <span className="w-8 h-[1px] bg-blue-600"></span>
@@ -81,7 +80,7 @@ const Section4 = () => {
           </div>
 
           {/* Navigation Buttons */}
-          <div className="hidden md:flex gap-4">
+          <div className="flex gap-4">
             <button
               onClick={() => scroll('left')}
               className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300"
@@ -98,9 +97,7 @@ const Section4 = () => {
           </div>
         </div>
 
-        {/* =========================
-            🔹 Slider Section
-        ========================= */}
+        {/* Slider Section */}
         <div
           ref={scrollRef}
           className="flex overflow-x-auto gap-8 snap-x snap-mandatory no-scrollbar pb-12 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth"
@@ -110,12 +107,8 @@ const Section4 = () => {
               key={item.id}
               className="min-w-[300px] md:min-w-[380px] lg:min-w-[420px] snap-start"
             >
-              <ProductCard
-                name={item.title}
-                price={item.price}
-                image={item.image}
-                category={item.category}
-              />
+              {/* التمرير كـ Object كامل ليتوافق مع الـ Component المصحح */}
+              <ProductCard product={item} />
             </div>
           ))}
         </div>

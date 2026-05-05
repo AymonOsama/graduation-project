@@ -6,7 +6,8 @@
       "lastName": "Osama",
       "email": "ayman@example.com",
       "password": "password123",
-      "role": "admin"
+      "role": "admin",
+      "isPremium": true 
     },
     {
       "id": "2",
@@ -14,7 +15,8 @@
       "lastName": "Osama",
       "email": "sarah@example.com",
       "password": "password456",
-      "role": "user"
+      "role": "user",
+      "isPremium": true
     },
     {
       "id": "3",
@@ -22,7 +24,8 @@
       "lastName": "Osama",
       "email": "mohammed@example.com",
       "password": "password789",
-      "role": "user"
+      "role": "user",
+      "isPremium": false
     }
   ]
 }
