@@ -6,24 +6,51 @@
       "lastName": "Osama",
       "email": "ayman@example.com",
       "password": "password123",
-      "role": "admin",
-      "isPremium": true 
+      "role": "super_admin",
+      "isPremium": true
     },
     {
       "id": "2",
-      "firstName": "Sarah",
-      "lastName": "Osama",
-      "email": "sarah@example.com",
+      "firstName": "Ahmed",
+      "lastName": "Ali",
+      "email": "ahmed@example.com",
       "password": "password456",
-      "role": "user",
+      "role": "admin",
       "isPremium": true
     },
     {
       "id": "3",
+      "firstName": "Omar",
+      "lastName": "Hassan",
+      "email": "omar@example.com",
+      "password": "password789",
+      "role": "admin",
+      "isPremium": false
+    },
+    {
+      "id": "4",
+      "firstName": "Yassin",
+      "lastName": "Zaki",
+      "email": "yassin@example.com",
+      "password": "password101",
+      "role": "admin",
+      "isPremium": true
+    },
+    {
+      "id": "5",
+      "firstName": "Sarah",
+      "lastName": "Osama",
+      "email": "sarah@example.com",
+      "password": "password202",
+      "role": "user",
+      "isPremium": true
+    },
+    {
+      "id": "6",
       "firstName": "Mohammed",
       "lastName": "Osama",
       "email": "mohammed@example.com",
-      "password": "password789",
+      "password": "password303",
       "role": "user",
       "isPremium": false
     }

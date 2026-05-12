@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import photo1 from "../assets/About 1.png";
 import photo2 from "../assets/About 2.png";
@@ -30,7 +31,7 @@ const AboutUs = () => {
   const heroOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
 
   return (
-    <div className="bg-[#f8fafc] text-slate-900 min-h-screen">
+    <div className="bg-[#f8fafc] text-slate-900 min-h-screen overflow-x-hidden">
       
       {/* HEADER BADGE & HERO SECTION */}
       <motion.section
@@ -97,13 +98,14 @@ const AboutUs = () => {
             We help you make smarter decisions with clear comparisons.
           </motion.p>
 
-          <motion.button
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            whileHover={{ scale: 1.05 }}
+          <Link to="/contact">
+            <motion.button
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="mt-12 bg-blue-600 text-white px-10 py-4 rounded-2xl flex items-center gap-3 mx-auto font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all text-lg"
+            className="cursor-pointer mt-12 bg-blue-600 text-white px-10 py-4 rounded-2xl flex items-center gap-3 mx-auto font-bold shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all text-lg"
           >
             Contact Us
             <motion.div
@@ -113,6 +115,7 @@ const AboutUs = () => {
               <ArrowRight size={22} />
             </motion.div>
           </motion.button>
+          </Link>
         </div>
       </motion.section>
 

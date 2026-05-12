@@ -1,118 +1,160 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import ProductCard from '../ProductCard';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import axios from 'axios';
 
 const Section4 = () => {
   const scrollRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  // =========================
-  // 🔹 Fetch Products
-  // =========================
+  // ==========================================
+  // 🔹 Fetch Data
+  // ==========================================
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get(
-          'https://api.escuelajs.co/api/v1/products?offset=0&limit=12'
-        );
-
-        // الحفاظ على هيكل البيانات كما يتوقعه الـ ProductCard الجديد
+        setLoading(true);
+        const { data } = await axios.get('https://api.escuelajs.co/api/v1/products?offset=0&limit=10');
         const formattedData = data.map((item) => ({
           ...item,
-          images: [
-            item.images?.[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/400'
-          ]
+          images: [item.images?.[0]?.replace(/[\[\]"]/g, '') || 'https://via.placeholder.com/400']
         }));
-
         setProducts(formattedData);
-      } catch (error) {
-        console.error('❌ Error fetching products:', error);
+      } catch (err) {
+        setError(true);
       } finally {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, []);
 
-  // =========================
-  // 🔹 Scroll Function
-  // =========================
-  const scroll = (direction) => {
+  // ==========================================
+  // 🔹 التعديل الجوهري: حساب الإسكرول بدقة متناهية
+  // ==========================================
+  const handleScrollUpdate = () => {
     if (!scrollRef.current) return;
-    const { clientWidth } = scrollRef.current;
-    const offset = direction === 'left' ? -clientWidth : clientWidth;
+    
+    const container = scrollRef.current;
+    const scrollLeft = container.scrollLeft;
+    
+    // نجلب عرض أول كارت موجود فعلياً في الصفحة
+    const cardElement = container.querySelector('.snap-start');
+    if (!cardElement) return;
 
-    scrollRef.current.scrollBy({
-      left: offset,
-      behavior: 'smooth',
-    });
+    const cardWidth = cardElement.offsetWidth + 16; // العرض + الـ Gap
+    
+    // الحساب يعتمد على "نقطة المنتصف" لضمان السلاسة
+    const index = Math.round(scrollLeft / cardWidth);
+    
+    if (index !== activeIndex) {
+      setActiveIndex(index);
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="py-24 text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 font-bold text-gray-400 uppercase tracking-widest text-xs">Loading Favorites...</p>
-      </div>
-    );
-  }
+  const handleScrollAction = useCallback((direction) => {
+    if (!scrollRef.current) return;
+    const container = scrollRef.current;
+    const cardElement = container.querySelector('.snap-start');
+    if (!cardElement) return;
+
+    const cardWidth = cardElement.offsetWidth + 16;
+    
+    container.scrollBy({
+      left: direction === 'left' ? -cardWidth : cardWidth,
+      behavior: 'smooth',
+    });
+  }, [activeIndex]);
+
+  if (loading) return (
+    <div className="py-20 flex flex-col items-center justify-center">
+      <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
+      <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">Loading Collection</span>
+    </div>
+  );
+
+  if (error) return null;
 
   return (
-    <section className="py-24 bg-white overflow-hidden font-sans">
-      <div className="container mx-auto px-6 lg:px-12">
+    <section className="py-16 md:py-24 bg-white overflow-hidden select-none">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-12">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="w-8 h-[1px] bg-blue-600"></span>
-              <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.4em]">
-                Most Liked
-              </span>
+        {/* --- Header Section --- */}
+        <div className="flex justify-between items-end mb-10 md:mb-16">
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="w-6 h-[2px] bg-blue-600"></span>
+              <span className="text-blue-600 font-bold text-[10px] uppercase tracking-[0.3em]">Most Liked</span>
             </div>
-
-            <h2 className="text-4xl md:text-6xl font-light text-slate-900 leading-none">
+            <h2 className="text-3xl sm:text-5xl lg:text-7xl font-light text-slate-900 tracking-tight">
               Community <span className="font-bold italic">Favorites.</span>
             </h2>
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex gap-4">
+          {/* Desktop Navigation */}
+          <div className="hidden sm:flex gap-3">
             <button
-              onClick={() => scroll('left')}
-              className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300"
+              onClick={() => handleScrollAction('left')}
+              className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all active:scale-90"
             >
               <ChevronLeft size={20} />
             </button>
-
             <button
-              onClick={() => scroll('right')}
-              className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300"
+              onClick={() => handleScrollAction('right')}
+              className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-900 hover:text-white transition-all active:scale-90"
             >
               <ChevronRight size={20} />
             </button>
           </div>
         </div>
 
-        {/* Slider Section */}
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto gap-8 snap-x snap-mandatory no-scrollbar pb-12 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth"
-        >
-          {products.map((item) => (
-            <div
-              key={item.id}
-              className="min-w-[300px] md:min-w-[380px] lg:min-w-[420px] snap-start"
-            >
-              {/* التمرير كـ Object كامل ليتوافق مع الـ Component المصحح */}
-              <ProductCard product={item} />
-            </div>
-          ))}
+        {/* --- Slider Container --- */}
+        <div className="relative">
+          <div
+            ref={scrollRef}
+            onScroll={handleScrollUpdate}
+            className="flex overflow-x-auto gap-4 md:gap-8 snap-x snap-mandatory scroll-smooth 
+                       no-scrollbar pb-8 -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-12 lg:px-12"
+          >
+            {products.map((item) => (
+              <div
+                key={item.id}
+                className="min-w-[85%] sm:min-w-[45%] lg:min-w-[30%] xl:min-w-[25%] snap-start"
+              >
+                <ProductCard product={item} />
+              </div>
+            ))}
+          </div>
+
+          {/* --- الإصلاح النهائي: نقاط سفلية ذكية ومبسطة جداً --- */}
+          {/* تختفي تماماً إذا كان عدد الكروت قليل أو في الديسكتوب */}
+          <div className="flex sm:hidden justify-center items-center gap-1.5 mt-2">
+            {products.map((_, idx) => (
+              <div
+                key={idx}
+                className={`transition-all duration-500 rounded-full ${
+                  activeIndex === idx 
+                  ? "w-6 h-1 bg-blue-600" 
+                  : "w-1.5 h-1 bg-slate-200"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </section>
   );
 };

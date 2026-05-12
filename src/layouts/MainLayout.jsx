@@ -1,22 +1,35 @@
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import NavBar from '../components/NavBar'; 
-// لو الـ Footer في نفس فولدر الـ NavBar، يبقى المسار لازم يكون كدا:
 import Footer from '../components/Footer';
-import ScrollToTop from '../components/ScrollToTop'; // تأكد من المسار الصحيح لهذا المكون 
+import ScrollToTop from '../components/ScrollToTop';
+import UpgradeModal from '../components/UpgradeModal'; // استيراد المكون الموحد
 
 const MainLayout = () => {
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+
+  // وظائف التحكم في الـ Modal
+  const openUpgradeModal = () => setIsUpgradeOpen(true);
+  const closeUpgradeModal = () => setIsUpgradeOpen(false);
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <ScrollToTop />
-      {/* الـ NavBar ثابت فوق */}
-      <NavBar />
       
-      {/* الـ flex-grow بتخلي الـ main ياخد المساحة المتاحة عشان الفوتر يفضل تحت لو الصفحة فاضية */}
+      {/* 1. المكون الموحد يوضع هنا ليكون متاحاً فوق كل شيء */}
+      <UpgradeModal 
+        isOpen={isUpgradeOpen} 
+        onClose={closeUpgradeModal} 
+      />
+
+      {/* 2. تمرير الوظيفة للـ NavBar إذا كان يحتوي على زر "اشترك الآن" */}
+      <NavBar onUpgradeClick={openUpgradeModal} />
+      
       <main className="flex-grow">
-        <Outlet /> 
+        {/* 3. استخدام context لتمرير الوظيفة لكل الصفحات (مثل صفحة الخدمات) */}
+        <Outlet context={{ openUpgradeModal }} /> 
       </main>
       
-      {/* الـ Footer ثابت تحت */}
       <Footer />
     </div>
   );

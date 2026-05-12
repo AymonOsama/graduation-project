@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
@@ -6,12 +8,15 @@ import {
     Monitor, MousePointer2, Zap 
 } from 'lucide-react'; 
 import { motion, AnimatePresence } from 'framer-motion'; 
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; 
+import { IoHeartDislikeOutline } from "react-icons/io5";
 
-// Imports لـ الـ Child Components
+// تأكد من صحة مسار ملف الـ JSON الخاص بك
+import usersDataJ from '../data/users.json';
+
 import SearchBar from './NavBarCom/SearchBar'; 
 import MegaMenu from './NavBarCom/MegaMenu';
-import UserMenu from './NavBarCom/UserMenu'; // المكون الجديد
+import UserMenu from './NavBarCom/UserMenu'; 
 
 const NavBar = () => {
     const navigate = useNavigate();
@@ -19,11 +24,49 @@ const NavBar = () => {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
     const [userData, setUserData] = useState(null);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+    const [wishlistCount, setWishlistCount] = useState(0);
 
     const activeLinkStyles = ({ isActive }) => 
         isActive 
             ? "text-blue-600 relative after:content-[''] after:absolute after:-bottom-1 after:left-0 after:w-full after:h-0.5 after:bg-blue-600 transition-all" 
             : "text-gray-700 hover:text-blue-600 transition-colors";
+
+    useEffect(() => {
+        // 1. جلب بيانات الجلسة
+        const savedUserData = localStorage.getItem('rememberedUser') || sessionStorage.getItem('rememberedUser');
+
+        if (savedUserData) {
+            try {
+                const parsedUser = JSON.parse(savedUserData);
+                
+                // 2. البحث عن بيانات المستخدم الكاملة (بما فيها حالة الـ Premium) من الملف المحلي
+                const fullUserData = usersDataJ.users.find(
+                    (u) => u.id === String(parsedUser.id)
+                );
+
+                // تخزين البيانات في State واحدة لتجنب التشتت
+                setUserData(fullUserData || parsedUser);
+            } catch (error) {
+                console.error("Error parsing user data:", error);
+            }
+        }
+
+        // 3. تحديث عدد المفضلات
+        const updateCount = () => {
+            const savedFavorites = JSON.parse(localStorage.getItem("favoriteProducts") || "[]");
+            setWishlistCount(savedFavorites.length);
+        };
+
+        updateCount();
+
+        // 4. المستمع للتغييرات (Listener)
+        const handleWishlistUpdate = (event) => {
+            setWishlistCount(event.detail);
+        };
+
+        window.addEventListener("wishlistUpdated", handleWishlistUpdate);
+        return () => window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+    }, []);
 
     const handlelogout = () => {
         localStorage.removeItem('rememberedUser');
@@ -33,13 +76,6 @@ const NavBar = () => {
         navigate('/login'); 
         toast.success('Logged out successfully!');
     };
-
-    useEffect(() => {
-        const savedUSerData = localStorage.getItem('rememberedUser') || sessionStorage.getItem('rememberedUser');
-        if (savedUSerData) {
-            setUserData(JSON.parse(savedUSerData));
-        } 
-    }, []);
 
     const categories = [
         {
@@ -61,30 +97,31 @@ const NavBar = () => {
     ];
 
     return (
-        <nav className="w-full bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50 font-sans">
+        <nav className="z-[100] w-full bg-white border-b border-gray-100 shadow-sm sticky top-0 font-sans select-none">
             <div className="max-w-[100%] mx-auto px-4 md:px-12">
                 <div className="flex items-center justify-between h-20 gap-2 md:gap-4">
                     
-                    {/* --- Logo --- */}
+                    {/* Logo */}
                     <div className="flex-shrink-0 z-50">
                         <Link to="/home" className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter">
                             COMP<span className="text-black">ARO</span>
                         </Link>
                     </div>
 
-                    {/* --- SearchBar كـ Child Component --- */}
-
-                    <SearchBar />
+                    {/* Search Bar Desktop */}
+                    <div className="hidden lg:block flex-1 max-w-md mx-8">
+                        <SearchBar />
+                    </div>
 
                     <div className="flex items-center space-x-2 md:space-x-8">
+                        {/* Nav Links Desktop */}
                         <div className="hidden lg:flex items-center space-x-6 text-sm font-bold">
                             <NavLink to="/home" className={activeLinkStyles}>Home</NavLink>
                             
-                            {/* Mega Menu Child */}
                             <div className="static group" onMouseLeave={() => setIsCategoryOpen(false)}>
                                 <button 
                                     onMouseEnter={() => setIsCategoryOpen(true)}
-                                    className={`${isCategoryOpen ? "text-blue-600" : "text-gray-700"} flex items-center gap-1 hover:text-blue-600 transition-colors  cursor-pointer font-bold`}
+                                    className={`${isCategoryOpen ? "text-blue-600" : "text-gray-700"} flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer font-bold`}
                                 >
                                     Explore Categories
                                     <motion.div animate={{ rotate: isCategoryOpen ? 180 : 0 }}>
@@ -98,14 +135,30 @@ const NavBar = () => {
                             <NavLink to="/contact" className={activeLinkStyles}>Contact</NavLink>
                         </div>
 
-                        {/* --- Actions --- */}
+                        {/* Actions */}
                         <div className="flex items-center space-x-1 md:space-x-4 border-l pl-2 md:pl-8 border-gray-200">
-                            <Link to="/favorites" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
-                                <Heart size={20} className="group-hover:text-red-500" />
-                                <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full font-bold">3</span>
-                            </Link>
+                            
+                            {/* التحكم في أيقونة المفضلات بناءً على حالة الـ Premium */}
+                            {userData?.isPremium ? (
+                                <Link to="/favorites" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
+                                    <Heart size={20} className="group-hover:text-red-500 transition-colors" />
+                                    <AnimatePresence>
+                                        {wishlistCount > 0 && (
+                                            <motion.span 
+                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                                                className="absolute top-1 right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold min-w-[18px] text-center"
+                                            >
+                                                {wishlistCount}
+                                            </motion.span>
+                                        )}
+                                    </AnimatePresence>
+                                </Link>
+                            ) : (
+                                <div className="relative p-2 text-gray-300 rounded-full cursor-not-allowed group" title="Premium Feature">
+                                    <IoHeartDislikeOutline size={22} />
+                                </div>
+                            )}
 
-                            {/* User Menu Child */}
                             <UserMenu 
                                 isOpen={isUserMenuOpen} 
                                 setIsOpen={setIsUserMenuOpen} 
@@ -121,72 +174,44 @@ const NavBar = () => {
                 </div>
             </div>
 
-            {/* --- Mobile Sidebar --- */}
-<AnimatePresence>
-    {isMenuOpen && (
-        <>
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                onClick={() => setIsMenuOpen(false)} 
-                className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] lg:hidden" 
-            />
-            <motion.div 
-                initial={{ x: '100%' }} 
-                animate={{ x: 0 }} 
-                exit={{ x: '100%' }} 
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
-                className="fixed inset-y-0 right-0 w-full md:w-80 bg-white z-[60] lg:hidden shadow-2xl overflow-y-auto" 
-            >
-                {/* Header الـ Sidebar */}
-                <div className="flex items-center justify-between p-6 border-b border-gray-50">
-                    <span className="font-black text-blue-600 uppercase tracking-tighter">Menu</span>
-                    <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
-                        <X size={20} />
-                    </button>
-                </div>
-                
-                <div className="p-6 flex flex-col">
-                    {/* --- الـ SearchBar كـ Child --- */}
-                    <div className="mb-8 w-full">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] mb-4 px-1">Search Products</p>
-                        <div className="transform scale-95 origin-left"> 
-                            {/* استدعينا المكون هنا وهنصغره بنسبة بسيطة عشان يليق عالموبايل */}
-                            <SearchBar />
-                        </div>
-                    </div>
-
-                    {/* الروابط القائمة */}
-                    <nav className="flex flex-col space-y-5">
-                        <NavLink to="/home" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
-                            Home
-                        </NavLink>
-
-                        <NavLink to="/components" className={({ isActive }) => `text-xl font-black transition-colors flex items-center justify-between ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
-                            {({ isActive }) => (
-                                <>
-                                    Explore categories 
-                                    <Zap size={20} className={isActive ? 'text-blue-600' : 'text-gray-400'} />
-                                </>
-                            )}
-                        </NavLink>
-
-                        <hr className="border-gray-50 my-2" />
-
-                        <NavLink to="/about-us" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
-                            About Us
-                        </NavLink>
-
-                        <NavLink to="/contact" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
-                            Contact Us
-                        </NavLink>
-                    </nav>
-                </div>
-            </motion.div>
-        </>
-    )}
-</AnimatePresence>
+            {/* Mobile Sidebar */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <>
+                        <motion.div 
+                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                            onClick={() => setIsMenuOpen(false)} 
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] lg:hidden" 
+                        />
+                        <motion.div 
+                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
+                            className="fixed inset-y-0 right-0 w-full md:w-80 bg-white z-[60] lg:hidden shadow-2xl overflow-y-auto" 
+                        >
+                            <div className="flex items-center justify-between p-6 border-b border-gray-50">
+                                <span className="font-black text-blue-600 uppercase tracking-tighter">Menu</span>
+                                <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+                                    <X size={20} />
+                                </button>
+                            </div>
+                            <div className="p-6 flex flex-col">
+                                <div className="mb-8 w-full">
+                                    <SearchBar onSearchSuccess={() => setIsMenuOpen(false)} />
+                                </div>
+                                <nav className="flex flex-col space-y-5">
+                                    <NavLink to="/home" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>Home</NavLink>
+                                    <NavLink to="/categories" className={({ isActive }) => `text-xl font-black transition-colors flex items-center justify-between ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
+                                        Explore categories <Zap size={20} className="text-gray-400" />
+                                    </NavLink>
+                                    <hr className="border-gray-100 my-2" />
+                                    <NavLink to="/about-us" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>About Us</NavLink>
+                                    <NavLink to="/contact" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>Contact Us</NavLink>
+                                </nav>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </nav>
     );
 };

@@ -1,23 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { ExternalLink, Heart, Star, TrendingDown } from "lucide-react";
+import { ExternalLink, Heart, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast"; 
+import usersData from "../data/users.json";
 
-const ProductCard = ({ product }) => {
+/**
+ * ProductCard Component
+ * @param {Object} product - The product data object
+ * @param {Function} onFavoriteToggle - Callback function to refresh parent state (mainly for Favorites Page)
+ */
+const ProductCard = ({ product, onFavoriteToggle }) => {
   const navigate = useNavigate();
+  
+  // Local UI States
+  const [isLiked, setIsLiked] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
 
-  const handleCardClick = () => {
-  // بنشيك لو الـ id موجود فعلاً قبل ما ننقل الصفحة
-  if (product?.id) {
-    navigate(`/product/${product.id}`);
-  } else {
-    // بدل الأيرور، ممكن نطلع رسالة بسيطة أو مانعملش حاجة
-    console.warn("This specific product has no ID in the API database.");
-  }
-};
-
+  // Destructuring product with fallback values to prevent crashes
   const {
     id,
     title: name = "Unknown Product",
@@ -26,24 +29,102 @@ const ProductCard = ({ product }) => {
     category = { name: "General" },
   } = product || {};
 
-  const [isLiked, setIsLiked] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
+  useEffect(() => {
+    /**
+     * Check if the logged-in user has Premium status from local storage and JSON data
+     */
+    const checkPremiumStatus = () => {
+      const savedUser = localStorage.getItem("rememberedUser") || sessionStorage.getItem("rememberedUser");
+      if (!savedUser) return;
+    
+      const userId = JSON.parse(savedUser).id;
+      const usersArray = usersData.users; 
+    
+      if (usersArray && Array.isArray(usersArray)) {
+        const currentUser = usersArray.find((u) => u.id === String(userId));
+        if (currentUser?.isPremium) {
+          setIsPremium(true);
+        }
+      }
+    };
 
-  // 1. تنظيف الرابط واستبدال السيرفر العطلان بـ placehold.co
+    /**
+     * Initial check to see if this specific product is already in the wishlist
+     */
+    const favorites = JSON.parse(localStorage.getItem("favoriteProducts") || "[]");
+    setIsLiked(favorites.some((fav) => fav.id === id));
+
+    checkPremiumStatus();
+  }, [id]);
+
+  /**
+   * Handles the Heart icon click logic
+   * Includes Premium validation, LocalStorage updates, and Cross-component communication
+   */
+  const handleLikeClick = (e) => {
+    // Prevent the click from triggering the card's navigation
+    e.stopPropagation();
+
+    // Guard Clause: Only premium users can use the wishlist feature
+    if (!isPremium) {
+      toast.error("Exclusive for Premium members!");
+      return;
+    }
+
+    const favorites = JSON.parse(localStorage.getItem("favoriteProducts") || "[]");
+    let updatedFavorites;
+
+    if (isLiked) {
+      // Logic to Remove from favorites
+      updatedFavorites = favorites.filter((fav) => fav.id !== id);
+      toast.success("Removed from favorites");
+    } else {
+      // Logic to Add to favorites
+      updatedFavorites = [...favorites, product];
+      toast.success("Added to favorites!");
+    }
+
+    // 1. Update Persistent Storage
+    localStorage.setItem("favoriteProducts", JSON.stringify(updatedFavorites));
+    
+    // 2. Update Local UI state (Heart color)
+    setIsLiked(!isLiked);
+
+    /**
+     * 3. THE MAGIC LINE: Dispatch a Custom Event
+     * This notifies the NavBar component to update the wishlist count badge immediately
+     * without needing a page refresh.
+     */
+    window.dispatchEvent(new CustomEvent("wishlistUpdated", { 
+      detail: updatedFavorites.length 
+    }));
+
+    /**
+     * 4. Parent Callback
+     * If this card is rendered inside the Favorites Page, this function will
+     * trigger a re-render or animation to remove the card from the grid.
+     */
+    if (onFavoriteToggle) {
+      onFavoriteToggle(id);
+    }
+  };
+
+  /**
+   * Navigates to the Single Product Details page
+   */
+  const handleCardClick = () => {
+    if (id) navigate(`/product/${id}`);
+  };
+
+  /**
+   * Helper to clean API image URLs that might contain extra brackets or quotes
+   */
   const cleanImageUrl = (url) => {
     if (!url) return "https://placehold.co/400x400?text=No+Image";
-    const cleaned = url.replace(/[\[\]"]/g, "");
-    return cleaned;
+    return url.replace(/[\[\]"]/g, "");
   };
 
   const mainImage = cleanImageUrl(images[0]);
-  
-  const displayOriginalPrice = price + (price * 0.2); 
-  const rating = 4.8;
-  const reviews = 245;
-  const storesCount = 3;
-  const lowestStore = "Official Store";
-
 
   return (
     <motion.div
@@ -52,86 +133,69 @@ const ProductCard = ({ product }) => {
       onHoverEnd={() => setIsHovered(false)}
       onClick={handleCardClick}
     >
-      {/* تأثير التوهج الخلفي */}
+      {/* Dynamic Background Glow Effect on Hover */}
       <motion.div
-        className="absolute -inset-0.5 rounded-3xl bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-0 blur-xl transition-all"
-        animate={{ opacity: isHovered ? 0.4 : 0 }}
-        transition={{ duration: 0.3 }}
+        className="absolute -inset-0.5 rounded-[2.5rem] bg-gradient-to-r from-blue-600 to-indigo-500 opacity-0 blur-xl transition-all"
+        animate={{ opacity: isHovered ? 0.3 : 0 }}
       />
 
+      {/* Main Card Container */}
       <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/80 bg-white shadow-sm transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 h-full flex flex-col">
         
+        {/* Top Section: Image and Favorite Button */}
         <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex-shrink-0">
           
           <motion.button
-            onClick={(e) => {
-              e.stopPropagation(); 
-              setIsLiked(!isLiked);
-            }}
+            onClick={handleLikeClick}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+            className={`cursor-pointer absolute top-5 right-5 z-10 flex h-10 w-10 items-center justify-center rounded-full shadow-md backdrop-blur-sm transition-colors ${
+              !isPremium ? "bg-gray-100 cursor-not-allowed opacity-60" : "bg-white/90"
+            }`}
           >
             <Heart className={`h-5 w-5 transition-colors ${isLiked ? "fill-red-500 text-red-500" : "text-slate-400"}`} />
           </motion.button>
 
+          {/* Product Image with Hover Animation */}
           <motion.div
             className="relative h-full w-full flex items-center justify-center"
-            animate={{ y: isHovered ? -12 : 0, rotateY: isHovered ? 10 : 0 }}
-            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            animate={{ y: isHovered ? -12 : 0 }}
           >
             <img 
               src={mainImage} 
               alt={name} 
-              className="max-h-full max-w-full object-contain drop-shadow-2xl transition-transform duration-700"
-              onError={(e) => { e.target.src = "https://placehold.co/400x400?text=Image+Error"; }}
+              className="max-h-full max-w-full object-contain drop-shadow-xl group-hover:scale-110"
             />
           </motion.div>
 
+          {/* Floating 'View Details' Button visible on hover */}
           <motion.div
             className="absolute inset-x-5 bottom-5"
             initial={{ y: 40, opacity: 0 }}
             animate={{ y: isHovered ? 0 : 40, opacity: isHovered ? 1 : 0 }}
           >
-            <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 font-bold text-white shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-colors">
+            <div className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 py-3.5 font-bold text-white shadow-xl shadow-blue-600/20">
               <ExternalLink className="h-4 w-4" /> View Details
             </div>
           </motion.div>
         </div>
 
+        {/* Bottom Section: Product Information */}
         <div className="p-6 flex flex-col flex-grow">
-          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{category?.name}</span>
-          <h3 className="mt-2 text-xl font-black text-slate-900 group-hover:text-blue-600 leading-tight line-clamp-1">{name}</h3>
+          
+          <h3 className="mt-3 text-lg font-black text-slate-900 group-hover:text-blue-600 leading-tight line-clamp-2">
+            {name}
+          </h3>
 
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center gap-0.5">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className={`h-3.5 w-3.5 ${i < Math.floor(rating) ? "fill-amber-400 text-amber-400" : "text-slate-200"}`} />
-              ))}
+          <div className="mt-auto pt-6 flex items-end justify-between">
+            <div className="flex flex-col">
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">EGP {price?.toLocaleString()}</span>
             </div>
-            <span className="text-xs font-bold text-slate-900">{rating}</span>
-            <span className="text-xs text-slate-400">({reviews.toLocaleString()})</span>
-          </div>
-
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className="text-3xl font-black text-slate-900 tracking-tighter">EGP {price?.toLocaleString()}</span>
-            {displayOriginalPrice > price && (
-              <span className="text-sm font-medium text-slate-400 line-through">EGP {displayOriginalPrice.toLocaleString()}</span>
-            )}
-          </div>
-
-          <div className="mt-auto pt-5">
-             <div className="flex items-center justify-between border-t border-slate-50 pt-4">
-                <div className="flex items-center gap-2">
-                  <TrendingDown className="h-4 w-4 text-emerald-500" />
-                  <span className="text-[11px] font-bold text-slate-600">
-                    Lowest at <span className="text-emerald-500 font-black">{lowestStore}</span>
-                  </span>
-                </div>
-                <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500 uppercase tracking-tight">
-                  {storesCount} Sellers
-                </span>
-             </div>
+            
+            <div className="flex items-center gap-1.5 text-slate-400">
+               <ShoppingBag size={18} />
+               <span className="text-[10px] font-bold uppercase">Stock Ready</span>
+            </div>
           </div>
         </div>
       </div>

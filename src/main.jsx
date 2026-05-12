@@ -3,18 +3,18 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-// ----------------------------------------------------------------------
-// STYLES & ASSETS
+// البيانات والستايل
+import usersData from './data/users.json'; 
 import './index.css';
 
-// ----------------------------------------------------------------------
-// PAGES & COMPONENTS
+// الـ Layout
+import MainLayout from './layouts/MainLayout';
+
+// الصفحات
 import Login from './pages/AuthPages/Login';
 import Signup from './pages/AuthPages/Signup';
 import ForgetPassword from './pages/AuthPages/ForgetPassword';
 import Home from './pages/Home';
-import NavBar from './components/NavBar';
-import Footer from './components/Footer';
 import ProfilePage from './pages/ProfilePage';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
@@ -25,122 +25,108 @@ import CategoriesPgPd from './pages/CategoriesPgPd';
 import Categories from './pages/Categories';
 import ProductPage from './pages/ProductPage';
 import AdminPanel from './pages/AdminPages/AdminPanal';
-import ScrollToTop from './components/ScrollToTop';
 import FavoritePdPage from './pages/FavoritePdPage';
 import DownloadAppPage from './pages/DownloadAppPage';
+import ScrollToTop from './components/ScrollToTop';
 
-/**
- * MAIN LAYOUT COMPONENT
- */
-const MainLayout = () => {
-  return (
-    <div className="flex flex-col min-h-screen">
-      <NavBar />
-      <main className="flex-grow">
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
-  );
+// ----------------------------------------------------------------------
+// AUTH HELPERS & GUARDS
+// ----------------------------------------------------------------------
+
+const getAuthUserId = () => {
+  const rawData = localStorage.getItem("rememberedUser") || sessionStorage.getItem("rememberedUser");
+  if (!rawData) return null;
+  try {
+    const parsed = JSON.parse(rawData);
+    return parsed.id ? String(parsed.id) : String(parsed);
+  } catch { return String(rawData); }
 };
 
-// ----------------------------------------------------------------------
-// AUTHENTICATION & ROUTE GUARDS
-// ----------------------------------------------------------------------
-const getAuthUser = () => localStorage.getItem("rememberedUser") || sessionStorage.getItem("rememberedUser");
-
 const ProtectedRoute = ({ children }) => {
-  const isAuth = getAuthUser();
-  return isAuth ? children : <Navigate to="/login" replace />;
+  const userId = getAuthUserId();
+  return userId ? children : <Navigate to="/login" replace />;
+};
+
+const AdminRoute = ({ children }) => {
+  const userId = getAuthUserId();
+  if (!userId) return <Navigate to="/login" replace />;
+  const userInDb = usersData.users.find(u => String(u.id) === userId);
+  const isAuthorized = userInDb && (userInDb.role === 'admin' || userInDb.role === 'super_admin');
+  return isAuthorized ? children : <Navigate to="/home" replace />;
+};
+
+const PremiumRoute = ({ children }) => {
+  const userId = getAuthUserId();
+  if (!userId) return <Navigate to="/login" replace />;
+  const userInDb = usersData.users.find(u => String(u.id) === userId);
+  const isPremium = userInDb && (userInDb.isPremium === true || userInDb.role === 'admin');
+  return isPremium ? children : <Navigate to="/home" replace />;
 };
 
 const PublicRoute = ({ children }) => {
-  const isAuth = getAuthUser();
-  return isAuth ? <Navigate to="/home" replace /> : children;
+  const userId = getAuthUserId();
+  return userId ? <Navigate to="/home" replace /> : children;
 };
 
 // ----------------------------------------------------------------------
 // ROUTER CONFIGURATION
 // ----------------------------------------------------------------------
+
 const router = createBrowserRouter([
-  // Root Redirect Logic
   {
     path: "/",
     element: (
       <>
         <ScrollToTop />
-        {getAuthUser() ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}
+        {getAuthUserId() ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />}
       </>
     ),
   },
-  // 1. PUBLIC AUTH ROUTES
+  // مسارات الزوار (بدون Layout)
+  { path: "/login", element: <PublicRoute><Login /></PublicRoute> },
+  { path: "/signup", element: <PublicRoute><Signup /></PublicRoute> },
+  { path: "/forget-password", element: <PublicRoute><ForgetPassword /></PublicRoute> },
+
+  // مسارات التطبيق (باستخدام الـ MainLayout)
   {
-    path: "/login",
-    element: <PublicRoute><Login /></PublicRoute>,
-  },
-  {
-    path: "/signup",
-    element: <PublicRoute><Signup /></PublicRoute>,
-  },
-  {
-    path: "/forget-password",
-    element: <PublicRoute><ForgetPassword /></PublicRoute>,
-  },
-  // 2. PROTECTED APPLICATION ROUTES
-  {
-    element: (
-      <ProtectedRoute>
-        <MainLayout />
-      </ProtectedRoute>
-    ),
-    // إضافة صفحة خطأ عامة للتطبيق
+    element: <ProtectedRoute><MainLayout /></ProtectedRoute>,
     errorElement: (
-        <div className="flex flex-col items-center justify-center min-h-screen font-bold text-xl">
-            <h2>Oops! Something went wrong.</h2>
-            <button 
-                onClick={() => window.location.href = '/home'}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-            >
-                Back to Home
-            </button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen font-bold text-xl">
+        <h2>Oops! Something went wrong.</h2>
+        <button onClick={() => window.location.href = '/home'} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
+          Back to Home
+        </button>
+      </div>
     ),
     children: [
-      { path: "/home", element: <Home /> },
-      { path: "/profile", element: <ProfilePage /> },
-      { path: "/about-us", element: <AboutUs /> },
-      { path: "/contact", element: <ContactUs /> },
-      { path: "/success-history", element: <SuccessHistory /> },
-      { path: "/our-services", element: <OurServices /> },
-      { path: "/our-team", element: <KnowOurTeam /> },
-      { 
-        // التعديل الأساسي: إضافة "?" جعلت الـ slug اختيارياً للبحث
-        path: "/categoriesPgPd/:urlSlug?", 
-        element: <CategoriesPgPd /> 
-      },
-      { path: "/categories", element: <Categories /> },
-      { path: "/product/:id", element: <ProductPage /> },
-      { path: "/admin", element: <AdminPanel /> },
-      { path: "/favorites", element: <FavoritePdPage /> },
-      { path: "/download-app", element: <DownloadAppPage /> },
+      { path: "home", element: <Home /> },
+      { path: "profile", element: <ProfilePage /> },
+      { path: "about-us", element: <AboutUs /> },
+      { path: "contact", element: <ContactUs /> },
+      { path: "success-history", element: <SuccessHistory /> },
+      { path: "our-services", element: <OurServices /> },
+      { path: "our-team", element: <KnowOurTeam /> },
+      { path: "categories", element: <Categories /> },
+      { path: "categoriesPgPd/:urlSlug?", element: <CategoriesPgPd /> },
+      { path: "product/:id", element: <ProductPage /> },
+      { path: "download-app", element: <DownloadAppPage /> },
+      { path: "admin", element: <AdminRoute><AdminPanel /></AdminRoute> },
+      { path: "favorites", element: <PremiumRoute><FavoritePdPage /></PremiumRoute> },
     ],
   },
 ]);
 
 // ----------------------------------------------------------------------
-// APPLICATION RENDER
+// RENDER
+// ----------------------------------------------------------------------
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Toaster 
       position="top-right" 
       toastOptions={{
         duration: 3000,
-        style: { 
-          fontWeight: 'bold',
-          borderRadius: '12px',
-          background: '#333',
-          color: '#fff',
-        },
+        style: { fontWeight: 'bold', borderRadius: '12px', background: '#333', color: '#fff' },
       }}
     />
     <RouterProvider router={router} />

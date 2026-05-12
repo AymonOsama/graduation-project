@@ -1,707 +1,279 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  FaSearch,
-  FaChartLine,
-  FaBolt,
-  FaShieldAlt,
-  FaClock,
-  FaUsers,
-  FaCheckCircle,
-  FaArrowRight,
-  FaStar,
-  FaDollarSign,
-  FaMobileAlt,
-  FaLaptop,
-  FaHome
-} from "react-icons/fa";
+import { 
+  X, Crown, CheckCircle2, CreditCard, ShieldCheck, 
+  ArrowLeft, Loader2, Info, Star, Zap, TrendingUp, 
+  Search, Bell, FileText 
+} from 'lucide-react';
 
-const OurServices = () => {
-  const [activeService, setActiveService] = useState(0);
+// --- بيانات الخدمات ---
+const mainServices = [
+  {
+    id: 0,
+    title: 'Price Comparison',
+    description: 'We scan multiple online retailers to find you the best price for any product. Save time and money.',
+    benefits: ['Compare 500+ retailers', 'Real-time updates', 'Historical tracking'],
+    icon: <Search size={40} />
+  },
+  {
+    id: 1,
+    title: 'Specs Comparison',
+    description: 'Detailed specifications comparison for electronics. See performance metrics and technical details.',
+    benefits: ['Side-by-side features', 'Benchmarks', 'User reviews'],
+    icon: <Zap size={40} />
+  },
+  {
+    id: 2,
+    title: 'Smart Deals',
+    description: 'Get notified about the best deals and discounts from your favorite stores instantly.',
+    benefits: ['Daily notifications', 'Sale alerts', 'Discount codes'],
+    icon: <Bell size={40} />
+  }
+];
 
-  // Main Services
-  const mainServices = [
-    {
-      id: 0,
-      title: 'Price Comparison',
-      subtitle: 'Find the Lowest Price',
-      description: 'We scan multiple online retailers to find you the best price for any product. Save time and money with our intelligent price tracking system.',
-      benefits: [
-        'Compare prices across 500+ retailers',
-        'Real-time price updates',
-        'Historical price tracking',
-        'Price alerts for your wishlist'
-      ],
-      color: 'from-blue-500 to-cyan-500',
-      example: 'Laptop: $1,299 → $899 (Save $400)',
-      icon_emoji: '💰'
-    },
-    {
-      id: 1,
-      title: 'Specs Comparison',
-      subtitle: 'Compare Features Side-by-Side',
-      description: 'Detailed specifications comparison for electronics. See all features, performance metrics, and technical details in one place.',
-      benefits: [
-        'Side-by-side feature comparison',
-        'Performance benchmarks',
-        'Technical specifications',
-        'User reviews aggregated'
-      ],
-      color: 'from-purple-500 to-pink-500',
-      example: 'Compare RAM, Storage, Camera Quality instantly',
-      icon_emoji: '📱'
-    },
-    {
-      id: 2,
-      title: 'Smart Deals',
-      subtitle: 'Discover Best Offers',
-      description: 'Get notified about the best deals and discounts from your favorite stores. Never miss a sale again.',
-      benefits: [
-        'Daily deal notifications',
-        'Seasonal sale alerts',
-        'Flash sale monitoring',
-        'Exclusive discount codes'
-      ],
-      color: 'from-orange-500 to-red-500',
-      example: 'Get alerts when prices drop by 20%+',
-      icon_emoji: '🎉'
-    }
-  ];
+// --- مكون الـ UpgradeModal ---
+const UpgradeModal = ({ isOpen, onClose }) => {
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [billingCycle, setBillingCycle] = useState('Monthly');
 
-  // How It Works
-  const howItWorks = [
-    {
-      step: 1,
-      title: 'Search Product',
-      description: 'Enter the product name or brand you want to compare',
-      icon: '🔍'
-    },
-    {
-      step: 2,
-      title: 'Compare Prices',
-      description: 'See all available prices from different retailers instantly',
-      icon: '⚖️'
-    },
-    {
-      step: 3,
-      title: 'Check Specs',
-      description: 'View detailed specifications and features side by side',
-      icon: '📊'
-    },
-    {
-      step: 4,
-      title: 'Buy Smart',
-      description: 'Click to buy from the best price or read reviews first',
-      icon: '✅'
-    }
-  ];
-
-  // Features
-  const features = [
-    {
-      icon: FaSearch,
-      title: 'Universal Search',
-      desc: 'Search any product and instantly see all prices and specifications from major retailers'
-    },
-    {
-      icon: FaChartLine,
-      title: 'Lowest Price Guarantee',
-      desc: 'We guarantee you\'re getting the best deal available with our real-time price updates'
-    },
-    {
-      icon: FaClock,
-      title: '24/7 Monitoring',
-      desc: 'Our system monitors prices 24/7 to catch the best deals before anyone else'
-    },
-    {
-      icon: FaShieldAlt,
-      title: '100% Free Service',
-      desc: 'Completely free to use. We don\'t charge for price comparisons or specifications'
-    },
-    {
-      icon: FaBolt,
-      title: 'Instant Comparison',
-      desc: 'Get results in seconds. No waiting, no complicated forms. Just search and compare'
-    },
-    {
-      icon: FaUsers,
-      title: 'Community Reviews',
-      desc: 'Read aggregated reviews from thousands of users to make informed decisions'
-    }
-  ];
-
-  // Premium Features
-  const premiumFeatures = [
-    {
-      feature: 'Basic Price Comparison',
-      free: true,
-      premium: true
-    },
-    {
-      feature: 'Detailed Specifications',
-      free: true,
-      premium: true
-    },
-    {
-      feature: 'Price Alerts',
-      free: false,
-      premium: true
-    },
-    {
-      feature: 'Advanced Filters',
-      free: false,
-      premium: true
-    },
-    {
-      feature: 'Wishlist & Saved Items',
-      free: false,
-      premium: true
-    },
-    {
-      feature: 'Historical Price Charts',
-      free: false,
-      premium: true
-    },
-    {
-      feature: 'Ad-Free Experience',
-      free: false,
-      premium: true
-    },
-    {
-      feature: 'Premium Support',
-      free: false,
-      premium: true
-    }
-  ];
-
-  // Example Use Cases
-  const useCases = [
-    {
-      product: 'Gaming Laptop',
-      scenario: 'Finding the best gaming laptop within budget',
-      saved: '$500+',
-      process: 'Compare specs → Find lowest price → Check reviews → Buy'
-    },
-    {
-      product: 'Smartphone',
-      scenario: 'Comparing latest phone models and prices',
-      saved: '$300+',
-      process: 'Search model → See all retailers → Check features → Get deal alert'
-    },
-    {
-      product: 'Headphones',
-      scenario: 'Getting the best audio quality for your money',
-      saved: '$150+',
-      process: 'Filter by specs → Compare prices → Read reviews → Purchase'
-    },
-    {
-      product: 'Smart Home Device',
-      scenario: 'Building smart home setup at the best value',
-      saved: '$200+',
-      process: 'Browse category → Compare all options → Stack savings → Buy'
-    }
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
-    }
+  const handlePaymentSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      alert("Success! Your 7-day free trial has started.");
+      onClose();
+      setStep(1);
+    }, 2000);
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  const closeAndReset = () => {
+    onClose();
+    setTimeout(() => setStep(1), 500);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 overflow-hidden">
-
-      {/* Background Decoration */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-blue-200/20 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" />
-      </div>
-
-      {/* HERO SECTION */}
-      <motion.section
-        initial={{ opacity: 0, y: -40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="pt-32 pb-20 px-6 md:px-12 text-center relative z-10"
-      >
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center justify-center gap-3 mb-8"
-        >
-          <motion.div 
-            className="h-[2px] w-12 bg-blue-600"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-          />
-          <span className="text-blue-600 font-bold uppercase tracking-[0.2em] text-sm">
-            Our Services
-          </span>
-          <motion.div 
-            className="h-[2px] w-12 bg-blue-600"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          />
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl md:text-7xl font-black mb-6 text-slate-900"
-        >
-          Smart Shopping, <span className="text-blue-600">Smart Savings</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="text-slate-600 text-lg md:text-xl max-w-3xl mx-auto font-medium mb-12"
-        >
-          Compare prices, specifications, and reviews across 500+ retailers. Find the best deals and never overpay again.
-        </motion.p>
-
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="text-5xl"
-        >
-          💡
-        </motion.div>
-      </motion.section>
-
-      <div className="max-w-7xl mx-auto px-6 md:px-12 relative z-10 space-y-24 py-20">
-
-        {/* MAIN SERVICES SHOWCASE */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
-        >
-          <motion.h2
-            initial={{ opacity: 0, y: -30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
-          >
-            What We <span className="text-blue-600">Offer</span>
-          </motion.h2>
-
-          {/* Service Cards */}
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeAndReset}
+            className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm cursor-pointer"
+          />
+
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.9, opacity: 0, y: 20 }}
+            className="relative bg-white w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl"
           >
-            {mainServices.map((service, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -15, scale: 1.02 }}
-                onClick={() => setActiveService(idx)}
-                className={`rounded-2xl p-8 cursor-pointer transition-all border-2 ${
-                  activeService === idx
-                    ? 'bg-gradient-to-br from-blue-600 to-cyan-500 text-white border-blue-600 shadow-2xl'
-                    : 'bg-white text-slate-900 border-slate-200 hover:border-blue-300'
-                }`}
-              >
-                <div className="text-6xl mb-4">{service.icon_emoji}</div>
-                <h3 className="text-2xl font-black mb-2">{service.title}</h3>
-                <p className={`text-sm font-bold mb-4 tracking-widest uppercase ${
-                  activeService === idx ? 'text-blue-100' : 'text-blue-600'
-                }`}>
-                  {service.subtitle}
-                </p>
-                <p className={`leading-relaxed ${
-                  activeService === idx ? 'text-blue-50' : 'text-slate-600'
-                }`}>
+            {/* Header */}
+            <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-600 p-8 text-center text-white relative">
+              {step === 2 && (
+                <button onClick={() => setStep(1)} className="absolute top-6 left-6 hover:text-blue-200 cursor-pointer transition-colors">
+                  <ArrowLeft size={20} />
+                </button>
+              )}
+              <button onClick={closeAndReset} className="absolute top-6 right-6 hover:rotate-90 transition-transform cursor-pointer">
+                <X size={24} />
+              </button>
+
+              <div className="inline-flex p-3 bg-white/20 rounded-2xl mb-4 backdrop-blur-md">
+                <Crown size={32} className="text-yellow-300" />
+              </div>
+              <h2 className="text-2xl font-black tracking-tight uppercase italic">
+                {step === 1 ? "Go Premium" : "Secure Checkout"}
+              </h2>
+            </div>
+
+            <div className="p-8">
+              {step === 1 ? (
+                <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+                  <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+                    <button 
+                      onClick={() => setBillingCycle('Monthly')}
+                      className={`flex-1 py-2 rounded-lg text-xs font-black transition-all cursor-pointer ${billingCycle === 'Monthly' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}
+                    > MONTHLY </button>
+                    <button 
+                      onClick={() => setBillingCycle('Yearly')}
+                      className={`flex-1 py-2 rounded-lg text-xs font-black transition-all cursor-pointer ${billingCycle === 'Yearly' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-500'}`}
+                    > YEARLY <span className="text-[9px] text-green-500 ml-1">SAVE 20%</span> </button>
+                  </div>
+
+                  <div className="bg-blue-50 rounded-3xl p-6 mb-8 border-2 border-blue-100 text-center">
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-5xl font-black text-slate-900">{billingCycle === 'Monthly' ? '$5' : '$48'}</span>
+                      <span className="text-slate-500 font-bold text-sm">{billingCycle === 'Monthly' ? '/ mo' : '/ yr'}</span>
+                    </div>
+                  </div>
+
+                  <ul className="grid grid-cols-1 gap-4 mb-8">
+                    {["Unlimited Price Trackers", "AI Specs Comparison", "Export Data (CSV)", "24/7 Priority Support"].map((feat, i) => (
+                      <li key={i} className="flex items-center gap-3 text-slate-700 font-bold text-sm">
+                        <CheckCircle2 className="text-blue-500 shrink-0" size={18} /> {feat}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button onClick={() => setStep(2)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-2xl shadow-xl transition-all cursor-pointer">
+                    CONTINUE TO FREE TRIAL
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.form initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} onSubmit={handlePaymentSubmit} className="space-y-4">
+                   <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 flex gap-3 mb-2">
+                    <Info className="text-amber-600 shrink-0" size={20} />
+                    <p className="text-[10px] text-amber-800 font-medium">Your 7-day trial is free. Then <b>{billingCycle === 'Monthly' ? '$5/mo' : '$48/yr'}</b> automatically.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input required type="text" placeholder="Card Number" className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-200 focus:border-blue-500 outline-none font-bold text-sm" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <input required type="text" placeholder="MM/YY" className="w-full px-4 py-3.5 rounded-xl border border-slate-200 outline-none font-bold text-sm" />
+                      <input required type="text" placeholder="CVV" className="w-full px-4 py-3.5 rounded-xl border border-slate-200 outline-none font-bold text-sm" />
+                    </div>
+                  </div>
+
+                  <button disabled={loading} type="submit" className="w-full bg-slate-900 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 mt-4 transition-all hover:bg-black cursor-pointer disabled:cursor-not-allowed">
+                    {loading ? <Loader2 className="animate-spin" size={20} /> : "ACTIVATE TRIAL"}
+                  </button>
+                </motion.form>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// --- المكون الرئيسي ---
+const OurServices = () => {
+  const [activeService, setActiveService] = useState(0);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-slate-50 selection:bg-blue-100">
+      <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
+
+      {/* Hero Section */}
+      <section className="pt-32 pb-16 px-6 text-center max-w-4xl mx-auto">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+          <Star size={14} fill="currentColor" /> Premium Shopping Assistant
+        </motion.div>
+        <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 tracking-tighter leading-none">
+          Smart Tools for <br/><span className="text-blue-600 italic">Serious Shoppers</span>
+        </h1>
+        <p className="text-slate-500 text-lg md:text-xl font-medium max-w-2xl mx-auto">
+          Everything you need to find the best deals, compare high-end hardware, and save hundreds of dollars.
+        </p>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-6 space-y-24 pb-32">
+        
+        {/* Services Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {mainServices.map((service, idx) => (
+            <motion.div
+              key={idx}
+              whileHover={{ y: -15 }}
+              onClick={() => setActiveService(idx)}
+              className={`p-10 rounded-[3.5rem] cursor-pointer transition-all border-2 flex flex-col justify-between min-h-[450px] relative overflow-hidden ${
+                activeService === idx 
+                ? 'bg-blue-600 text-white border-blue-600 shadow-[0_30px_60px_-15px_rgba(37,99,235,0.3)]' 
+                : 'bg-white border-slate-100 shadow-sm'
+              }`}
+            >
+              <div className="relative z-10">
+                <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-8 transition-colors ${activeService === idx ? 'bg-white/20' : 'bg-blue-50 text-blue-600'}`}>
+                  {service.icon}
+                </div>
+                <h3 className="text-3xl font-black mb-6 leading-tight">{service.title}</h3>
+                <p className={`text-lg font-medium leading-relaxed opacity-80 ${activeService === idx ? 'text-blue-50' : 'text-slate-500'}`}>
                   {service.description}
                 </p>
-              </motion.div>
-            ))}
-          </motion.div>
+              </div>
 
-          {/* Service Details */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeService}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-              className="bg-white rounded-3xl p-8 md:p-12 border-2 border-blue-200 shadow-xl"
-            >
-              <h3 className="text-3xl md:text-4xl font-black text-slate-900 mb-8">
-                {mainServices[activeService].title} Benefits
-              </h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                {mainServices[activeService].benefits.map((benefit, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    className="flex items-start gap-4 p-4 rounded-lg bg-blue-50"
-                  >
-                    <FaCheckCircle size={24} className="text-blue-600 flex-shrink-0 mt-1" />
-                    <span className="font-bold text-slate-800">{benefit}</span>
-                  </motion.div>
+              <div className="flex flex-wrap gap-2 mt-8 relative z-10">
+                {service.benefits.map((b, i) => (
+                  <span key={i} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tight ${activeService === idx ? 'bg-white/20' : 'bg-slate-100 text-slate-500'}`}>
+                    {b}
+                  </span>
                 ))}
               </div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="mt-8 p-6 bg-gradient-to-r from-blue-100 to-cyan-100 border-2 border-blue-300 rounded-xl"
-              >
-                <p className="text-lg font-black text-blue-900">
-                  💰 {mainServices[activeService].example}
-                </p>
-              </motion.div>
+              
+              <div className={`absolute -bottom-10 -right-10 w-40 h-40 rounded-full blur-3xl opacity-20 ${activeService === idx ? 'bg-white' : 'bg-blue-400'}`} />
             </motion.div>
-          </AnimatePresence>
-        </motion.section>
+          ))}
+        </div>
 
-        {/* HOW IT WORKS */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
-        >
-          <motion.h2
-            initial={{ opacity: 0, y: -30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
-          >
-            How It <span className="text-blue-600">Works</span>
-          </motion.h2>
+        {/* Premium Banner */}
+        <section className="bg-slate-900 rounded-[4rem] p-8 md:p-20 text-white flex flex-col lg:flex-row items-center gap-16 overflow-hidden relative">
+          <div className="flex-1 space-y-10 relative z-10">
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-6xl font-black leading-none">Upgrade to <span className="text-blue-400 underline decoration-blue-500/30">Premium</span></h2>
+              <p className="text-slate-400 text-lg font-medium max-w-lg">
+                Gain access to advanced AI-powered comparison tools, unlimited trackers, and real-time GPU stock alerts.
+              </p>
+            </div>
 
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {howItWorks.map((item, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                className="relative"
-              >
-                <div className="bg-white rounded-2xl p-8 border-2 border-slate-200 hover:border-blue-600 transition-all h-full text-center">
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                    className="text-6xl mb-4"
-                  >
-                    {item.icon}
-                  </motion.div>
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                    className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-xl mx-auto mb-4"
-                  >
-                    {item.step}
-                  </motion.div>
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 mb-2">
-                    {item.title}
-                  </h3>
-                  <p className="text-slate-600 text-sm">
-                    {item.description}
-                  </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[
+                { icon: <TrendingUp className="text-blue-400" />, text: "Real-time Price History" },
+                { icon: <ShieldCheck className="text-blue-400" />, text: "Verified Store Scans" },
+                { icon: <Zap className="text-blue-400" />, text: "Instant Flash Deals" },
+                { icon: <FileText className="text-blue-400" />, text: "Detailed PDF Reports" }
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5">
+                  {item.icon}
+                  <span className="font-bold text-sm">{item.text}</span>
                 </div>
-                {idx < 3 && (
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                    className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2"
-                  >
-                    <FaArrowRight size={32} className="text-blue-600" />
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
-
-        {/* FEATURES SECTION */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
-        >
-          <motion.h2
-            initial={{ opacity: 0, y: -30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
-          >
-            Powerful <span className="text-blue-600">Features</span>
-          </motion.h2>
-
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {features.map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={idx}
-                  variants={itemVariants}
-                  whileHover={{ y: -10, scale: 1.05 }}
-                  className="bg-white rounded-2xl p-8 border-2 border-slate-200 hover:border-blue-600 transition-all shadow-lg group"
-                >
-                  <motion.div
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                    className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-cyan-500 text-white flex items-center justify-center mb-6 group-hover:shadow-lg transition-shadow"
-                  >
-                    <Icon size={32} />
-                  </motion.div>
-                  <h3 className="text-xl font-black text-slate-900 mb-3 group-hover:text-blue-600 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-600 text-sm">
-                    {feature.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </motion.section>
-
-        {/* PRICING PLANS */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
-        >
-          <motion.h2
-            initial={{ opacity: 0, y: -30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
-          >
-            Pricing <span className="text-blue-600">Plans</span>
-          </motion.h2>
-
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {/* Free Plan */}
-            <motion.div
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              className="bg-white rounded-2xl p-8 border-2 border-slate-200 shadow-lg"
-            >
-              <h3 className="text-3xl font-black text-slate-900 mb-2">Free Plan</h3>
-              <p className="text-slate-600 mb-6 font-bold">Perfect for casual shoppers</p>
-              <div className="text-5xl font-black text-blue-600 mb-8">
-                $0 <span className="text-lg text-slate-600 font-bold">/month</span>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full py-3 px-6 bg-slate-900 text-white rounded-xl font-black hover:bg-slate-800 transition-colors mb-8 cursor-pointer"
-              >
-                Get Started
-              </motion.button>
-              <div className="space-y-4">
-                {premiumFeatures.map((item, idx) => (
-                  item.free && (
-                    <motion.div
-                      key={idx}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="flex items-center gap-3"
-                    >
-                      <FaCheckCircle size={20} className="text-green-500 flex-shrink-0" />
-                      <span className="font-bold text-slate-800 text-sm">{item.feature}</span>
-                    </motion.div>
-                  )
-                ))}
-              </div>
-            </motion.div>
-
-            {/* Premium Plan */}
-            <motion.div
-              variants={itemVariants}
-              whileHover={{ y: -15, scale: 1.02 }}
-              className="bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl p-8 border-2 border-blue-700 shadow-2xl text-white relative overflow-hidden"
-            >
-              <div className="absolute top-4 right-4 bg-yellow-400 text-slate-900 px-4 py-2 rounded-full font-black text-sm">
-                ⭐ POPULAR
-              </div>
-              <h3 className="text-3xl font-black mb-2">Premium Plan</h3>
-              <p className="text-blue-100 mb-6 font-bold">All features + advanced tools</p>
-              <div className="text-5xl font-black mb-8">
-                $4.99 <span className="text-lg text-blue-100 font-bold">/month</span>
-              </div>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="w-full py-3 px-6 bg-white text-blue-600 rounded-xl font-black hover:bg-blue-50 transition-colors mb-8 cursor-pointer"
-              >
-                Upgrade Now
-              </motion.button>
-              <div className="space-y-4">
-                {premiumFeatures.map((item, idx) => (
-                  <motion.div
-                    key={idx}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: idx * 0.05 }}
-                    className="flex items-center gap-3"
-                  >
-                    <FaCheckCircle size={20} className="text-blue-100 flex-shrink-0" />
-                    <span className={`font-bold text-sm ${item.premium ? 'text-white' : 'text-blue-200'}`}>
-                      {item.feature}
-                    </span>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        </motion.section>
-
-        {/* USE CASES */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8 }}
-          className="space-y-12"
-        >
-          <motion.h2
-            initial={{ opacity: 0, y: -30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8 }}
-            className="text-4xl md:text-5xl font-black text-slate-900 text-center"
-          >
-            Real-World <span className="text-blue-600">Examples</span>
-          </motion.h2>
-
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 gap-8"
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-          >
-            {useCases.map((useCase, idx) => (
-              <motion.div
-                key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -10 }}
-                className="bg-white rounded-2xl p-8 border-2 border-slate-200 hover:border-blue-600 transition-all shadow-lg"
-              >
-                <div className="text-6xl mb-4">{['🎮', '📱', '🎧', '🏠'][idx]}</div>
-                <h3 className="text-2xl font-black text-slate-900 mb-2">
-                  {useCase.product}
-                </h3>
-                <p className="text-slate-600 mb-4 font-medium">
-                  {useCase.scenario}
-                </p>
-                <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 mb-4">
-                  <p className="text-green-700 font-black">
-                    💚 You Save: {useCase.saved}
-                  </p>
-                </div>
-                <p className="text-slate-600 font-bold text-sm">
-                  Process: {useCase.process}
-                </p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.section>
-
-        {/* CTA SECTION */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center py-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-3xl relative overflow-hidden"
-        >
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -mr-48 -mt-48" />
-          </div>
-
-          <div className="relative z-10">
-            <motion.h2
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-3xl md:text-5xl font-black text-white mb-4"
-            >
-              Start Saving Today
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-white/90 text-lg max-w-2xl mx-auto mb-8"
-            >
-              Join millions of smart shoppers who save money every day using Comparo.
-            </motion.p>
+              ))}
+            </div>
 
             <motion.button
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="px-10 py-4 bg-white text-blue-600 rounded-xl font-black text-lg hover:bg-blue-50 transition-colors shadow-xl cursor-pointer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setIsUpgradeOpen(true)}
+              className="px-12 py-6 bg-blue-600 hover:bg-blue-500 rounded-3xl font-black text-xl flex items-center gap-4 shadow-2xl shadow-blue-900/40 transition-all cursor-pointer"
             >
-              Start Comparing Now
+              Unlock Everything <Crown className="text-yellow-300" fill="currentColor" />
             </motion.button>
           </div>
-        </motion.section>
 
+          <div className="flex-1 relative w-full lg:w-auto">
+             <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-8 rounded-[3rem] shadow-2xl relative z-10 border border-white/10">
+                <div className="h-4 w-1/3 bg-white/20 rounded-full mb-6" />
+                <div className="space-y-4">
+                   <div className="h-32 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                      <Zap size={48} className="text-blue-300 animate-pulse" />
+                   </div>
+                   <div className="grid grid-cols-3 gap-3">
+                      {[1,2,3].map(i => <div key={i} className="h-12 bg-white/5 rounded-xl" />)}
+                   </div>
+                </div>
+             </div>
+             <div className="absolute inset-0 bg-blue-500 blur-[100px] opacity-20" />
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <div className="text-center py-20">
+            <h3 className="text-3xl font-black text-slate-900 mb-8">Ready to shop smarter?</h3>
+            <button 
+              onClick={() => setIsUpgradeOpen(true)}
+              className="text-blue-600 font-black text-lg hover:underline underline-offset-8 cursor-pointer"
+            >
+              View all premium benefits &rarr;
+            </button>
+        </div>
       </div>
     </div>
   );

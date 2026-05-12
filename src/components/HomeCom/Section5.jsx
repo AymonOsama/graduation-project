@@ -1,442 +1,224 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, TrendingUp, Zap } from 'lucide-react';
+import { ArrowUpRight, Star, CheckCircle2, ChevronRight, ShoppingBag } from 'lucide-react';
 
-const Section5 = () => {
-  const [hoveredBrand, setHoveredBrand] = useState(null);
+const Section5 = ({ 
+  premiumPartners: propsPartners, 
+  SponserAdvert: propsSponser 
+}) => {
+  
+  // 1. إعداد الحالة (State) للبيانات
+  const [data, setData] = useState({
+    partners: propsPartners || [],
+    spotlight: propsSponser ? propsSponser[0] : null
+  });
 
-  // Brand Partners Data
-  const brandPartners = [
-    {
-      id: 1,
-      name: 'NVIDIA',
-      category: 'Graphics',
-      color: 'from-green-500 to-emerald-600',
-      icon: '🎮',
-      rating: 4.9,
-      products: '500+',
-    },
-    {
-      id: 2,
-      name: 'ASUS',
-      category: 'Hardware',
-      color: 'from-red-500 to-rose-600',
-      icon: '⚡',
-      rating: 4.8,
-      products: '450+',
-    },
-    {
-      id: 3,
-      name: 'RAZER',
-      category: 'Peripherals',
-      color: 'from-green-600 to-lime-500',
-      icon: '🖱️',
-      rating: 4.7,
-      products: '380+',
-    },
-    {
-      id: 4,
-      name: 'MSI',
-      category: 'Components',
-      color: 'from-red-600 to-orange-500',
-      icon: '🔧',
-      rating: 4.8,
-      products: '420+',
-    },
-    {
-      id: 5,
-      name: 'INTEL',
-      category: 'Processors',
-      color: 'from-blue-600 to-cyan-500',
-      icon: '💻',
-      rating: 4.9,
-      products: '300+',
-    },
-  ];
+  // 2. سحب البيانات من الـ LocalStorage إذا لم توجد Props (مثل حالة صفحة Home)
+  useEffect(() => {
+    if (!propsPartners) {
+      const saved = localStorage.getItem('site_partners_data');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setData({
+          partners: parsed.partners || [],
+          spotlight: parsed.spotlight || null
+        });
+      } else {
+        // بيانات افتراضية أولية في حال لم يتم ضبط الإعدادات بعد
+        setData({
+          partners: [
+            { id: 1, name: 'NVIDIA', category: 'Ray-Tracing Pioneers', icon: '🎮', tier: 'Strategic Partner', offer: 'Founders Edition Stock Only Here' },
+            { id: 2, name: 'ASUS ROG', category: 'Extreme Performance', icon: '⚡', tier: 'Elite Partner', offer: 'Exclusive ROG Member Pricing' },
+            { id: 3, name: 'INTEL', category: 'Architecture Innovation', icon: '💻', tier: 'Global Partner', offer: 'Priority Gen-14 Access' },
+          ],
+          spotlight: {
+            name: 'Samsung Odyssey G9',
+            role: 'Official Display Partner',
+            headline: 'Redefine Your Visual',
+            lastWordofHeadline: 'Horizon.',
+            desc: "Experience the world's first dual UHD gaming monitor. Get a $200 Instant Rebate.",
+            initials: 'S',
+            badgeText: 'Limited Stock',
+            image: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&q=80&w=1000'
+          }
+        });
+      }
+    } else {
+      // تحديث البيانات فوراً إذا تغيرت في الـ Editor
+      setData({
+        partners: propsPartners,
+        spotlight: propsSponser ? propsSponser[0] : null
+      });
+    }
+  }, [propsPartners, propsSponser]);
 
-  // Store Partners Data
-  const storePartners = [
-    {
-      id: 1,
-      name: 'Amazon',
-      logo: '🛒',
-      color: 'from-orange-400 to-yellow-500',
-      verified: true,
-      badge: 'Prime Seller',
-    },
-    {
-      id: 2,
-      name: 'eBay',
-      logo: '🏪',
-      color: 'from-red-500 to-pink-600',
-      verified: true,
-      badge: 'Top Rated',
-    },
-    {
-      id: 3,
-      name: 'Newegg',
-      logo: '📦',
-      color: 'from-yellow-500 to-orange-600',
-      verified: true,
-      badge: 'Official',
-    },
-    {
-      id: 4,
-      name: 'Best Buy',
-      logo: '🎯',
-      color: 'from-blue-600 to-blue-700',
-      verified: true,
-      badge: 'Authorized',
-    },
-    {
-      id: 5,
-      name: 'Overclockers',
-      logo: '⚙️',
-      color: 'from-purple-600 to-indigo-700',
-      verified: true,
-      badge: 'Partner',
-    },
-  ];
+  const finalPartners = data.partners;
+  const finalSpotlight = data.spotlight;
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.5, ease: 'easeOut' },
-    },
-  };
+  // --- 3. حالة عدم وجود بيانات (Empty State) ---
+  if (!finalPartners || finalPartners.length === 0) {
+    return (
+      <section className="py-24 bg-[#001220] text-center border-t border-white/5">
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="container mx-auto px-6 py-20 rounded-[40px] border border-dashed border-white/10"
+        >
+          <div className="text-6xl mb-6 opacity-20">🔗</div>
+          <h2 className="text-2xl font-black text-white mb-2 tracking-tight">No Partnership Data Available</h2>
+          <p className="text-slate-500 max-w-md mx-auto font-light">
+            We are currently updating our authorized brand network. Please check back later for exclusive hardware deals.
+          </p>
+        </motion.div>
+      </section>
+    );
+  }
 
   return (
-    <section className="relative bg-gradient-to-b from-slate-50 via-white to-slate-50 py-32 overflow-hidden">
-      {/* Background decorative elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-100/30 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-100/30 rounded-full blur-3xl translate-x-1/2 translate-y-1/2 pointer-events-none" />
-
-      <div className="container mx-auto px-4 md:px-6 lg:px-12 relative z-10">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-20"
-        >
-          <motion.div className="flex items-center justify-center gap-2 mb-6">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
+    <section className="relative py-16 md:py-24 bg-[#001220] overflow-hidden font-sans select-none text-left" dir="ltr">
+      
+      {/* --- عناصر الديكور الخلفية --- */}
+      <div className="absolute top-0 right-0 w-1/4 h-full bg-white/[0.02] -skew-x-12 translate-x-20 z-0 hidden lg:block" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 md:w-64 md:h-64 bg-blue-500/5 rounded-full blur-[80px] md:blur-[120px]" />
+      
+      <div className="container mx-auto px-4 md:px-6 relative z-10">
+        
+        {/* --- رأس القسم (Section Header) --- */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 md:mb-20 gap-8 border-b border-white/5 pb-10 md:pb-12">
+          <div className="max-w-2xl">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="flex items-center gap-2 mb-4"
             >
-              <Zap size={24} className="text-blue-600" />
+              <div className="h-[1px] w-8 bg-blue-500" />
+              <span className="text-blue-400 font-bold text-[10px] md:text-xs uppercase tracking-[0.3em]">Official Brand Network</span>
             </motion.div>
-            <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs sm:text-[10px]">
-              Trusted by Industry Leaders
-            </span>
-            <motion.div
-              animate={{ rotate: -360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'linear' }}
-            >
-              <Star size={24} className="text-yellow-500" />
-            </motion.div>
-          </motion.div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+              Premium <span className="text-blue-500">Hardware</span> <br className="hidden md:block"/>Partnerships
+            </h2>
+          </div>
+          <div className="w-full md:w-1/3 text-left md:text-right">
+            <p className="text-slate-400 text-base md:text-lg font-light leading-relaxed">
+              Direct access to authorized global manufacturers for guaranteed authenticity and performance.
+            </p>
+          </div>
+        </div>
 
-          <motion.h2
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight"
-          >
-            Official Brand <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Partners</span>
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="text-slate-600 text-lg max-w-2xl mx-auto font-semibold"
-          >
-            We partner with the world's leading tech brands to bring you the best quality and performance
-          </motion.p>
-        </motion.div>
-
-        {/* Brand Partners Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-20"
-        >
-          {brandPartners.map((brand) => (
+        {/* --- أولاً: شبكة بطاقات الشركات (Brands Grid) --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-16">
+          {finalPartners.map((brand) => (
             <motion.div
               key={brand.id}
-              variants={itemVariants}
-              onMouseEnter={() => setHoveredBrand(brand.id)}
-              onMouseLeave={() => setHoveredBrand(null)}
-              whileHover={{ y: -10, scale: 1.05 }}
-              className="group relative cursor-pointer"
+              whileHover={{ y: -8 }}
+              className="group relative bg-[#001f35] rounded-[24px] md:rounded-[32px] border border-white/5 p-6 md:p-8 transition-all duration-500 hover:bg-[#002a4a] hover:shadow-2xl"
             >
-              {/* Card Background */}
-              <div
-                className={`absolute inset-0 bg-gradient-to-br ${brand.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-2xl`}
-              />
-
-              {/* Card Border */}
-              <motion.div
-                className="absolute inset-0 rounded-2xl border-2 border-slate-200 group-hover:border-blue-300 transition-colors"
-                animate={{
-                  boxShadow:
-                    hoveredBrand === brand.id
-                      ? `0 0 30px ${brand.color.split(' ')[1]}`
-                      : 'none',
-                }}
-              />
-
-              {/* Card Content */}
-              <div className="relative p-6 h-full flex flex-col items-center text-center z-10">
-                {/* Icon */}
-                <motion.div
-                  animate={{
-                    y: hoveredBrand === brand.id ? -5 : 0,
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="text-5xl mb-4"
-                >
-                  {brand.icon}
-                </motion.div>
-
-                {/* Brand Name */}
-                <h3 className="text-2xl md:text-xl font-black text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
-                  {brand.name}
-                </h3>
-
-                {/* Category */}
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
-                  {brand.category}
-                </p>
-
-                {/* Divider */}
-                <div className="w-8 h-1 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full mb-4 group-hover:w-full transition-all duration-300" />
-
-                {/* Stats */}
-                <div className="space-y-2 w-full mb-4">
-                  {/* Rating */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: hoveredBrand === brand.id ? 1 : 0.6,
-                    }}
-                    className="flex items-center justify-center gap-1"
-                  >
-                    <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                    <span className="text-sm font-bold text-slate-700">
-                      {brand.rating}
-                    </span>
-                  </motion.div>
-
-                  {/* Products Count */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{
-                      opacity: hoveredBrand === brand.id ? 1 : 0.6,
-                    }}
-                    className="text-xs font-semibold text-slate-600"
-                  >
-                    {brand.products} Products
-                  </motion.div>
-                </div>
-
-                {/* CTA Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-black rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 uppercase tracking-wider"
-                >
-                  Shop Now
-                </motion.button>
-              </div>
-
-              {/* Glow Effect */}
-              <motion.div
-                className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${brand.color} opacity-0 blur-xl pointer-events-none`}
-                animate={{
-                  opacity: hoveredBrand === brand.id ? 0.3 : 0,
-                }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Divider */}
-        <motion.div
-          initial={{ scaleX: 0 }}
-          whileInView={{ scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          className="h-px bg-gradient-to-r from-transparent via-slate-300 to-transparent mb-20 origin-center"
-        />
-
-        {/* Store Partners Section */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-center mb-16"
-        >
-          <motion.div className="flex items-center justify-center gap-2 mb-4">
-            <TrendingUp size={20} className="text-green-600" />
-            <span className="text-slate-400 font-black uppercase tracking-[0.3em] text-xs sm:text-[10px]">
-              Available On
-            </span>
-            <TrendingUp size={20} className="text-green-600" />
-          </motion.div>
-          <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900">
-            Shop on Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">Favorite Stores</span>
-          </h3>
-        </motion.div>
-
-        {/* Store Partners Carousel */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"
-        >
-          {storePartners.map((store) => (
-            <motion.div
-              key={store.id}
-              variants={itemVariants}
-              whileHover={{
-                y: -15,
-                scale: 1.08,
-              }}
-              className="group relative cursor-pointer"
-            >
-              {/* Verified Badge */}
-              {store.verified && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: store.id * 0.1 + 0.5 }}
-                  className="absolute -top-3 -right-3 z-20"
-                >
-                  <div className="flex items-center gap-1 bg-green-500 text-white px-3 py-1 rounded-full text-xs font-black uppercase">
-                    ✓ {store.badge}
+              <div className="flex justify-between items-start mb-6 md:mb-8">
+                <div className="flex flex-col">
+                  <span className="text-[9px] md:text-[10px] font-black text-blue-400 uppercase tracking-widest">{brand.tier}</span>
+                  <div className="flex gap-0.5 mt-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={10} fill={i < 4 ? "#3b82f6" : "none"} stroke="#3b82f6" />
+                    ))}
                   </div>
-                </motion.div>
-              )}
-
-              {/* Card */}
-              <div
-                className={`relative p-8 rounded-2xl bg-gradient-to-br ${store.color} text-white overflow-hidden h-full flex flex-col items-center justify-center transform transition-all duration-300`}
-              >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full -mr-16 -mt-16" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mb-16" />
                 </div>
-
-                {/* Content */}
-                <div className="relative z-10 text-center">
-                  {/* Store Logo/Icon */}
-                  <motion.div
-                    animate={{
-                      y: [0, -10, 0],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    className="text-6xl mb-4"
-                  >
-                    {store.logo}
-                  </motion.div>
-
-                  {/* Store Name */}
-                  <h4 className="text-2xl font-black mb-2 group-hover:scale-110 transition-transform">
-                    {store.name}
-                  </h4>
-
-                  {/* Underline */}
-                  <motion.div
-                    initial={{ width: 0 }}
-                    whileInView={{ width: '100%' }}
-                    viewport={{ once: true }}
-                    transition={{ delay: store.id * 0.1 + 0.3, duration: 0.5 }}
-                    className="h-1 bg-white/40 rounded-full mx-auto mb-4"
-                  />
-
-                  {/* Visit Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-full py-2 px-4 bg-white/20 backdrop-blur-sm border border-white/30 text-white rounded-lg font-bold text-sm hover:bg-white/30 transition-all uppercase tracking-wider"
-                  >
-                    Visit Store
-                  </motion.button>
+                <div className="p-2 rounded-xl bg-white/5 group-hover:bg-blue-500/20 transition-colors cursor-pointer">
+                  <CheckCircle2 size={16} className="text-slate-500 group-hover:text-blue-400" />
                 </div>
-
-                {/* Hover Effect */}
-                <motion.div
-                  className="absolute inset-0 bg-white/10 rounded-2xl"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
 
-        {/* Trust Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.6 }}
-          className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-6 text-center"
-        >
-          {[
-            { label: 'Brand Partners', value: '500+' },
-            { label: 'Active Stores', value: '50+' },
-            { label: 'Products Listed', value: '50K+' },
-            { label: 'Customer Reviews', value: '100K+' },
-          ].map((stat, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 + 0.6, duration: 0.5 }}
-              className="p-6 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/50 hover:border-blue-300 transition-colors group"
-            >
-              <motion.div
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
-                className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 mb-2"
-              >
-                {stat.value}
-              </motion.div>
-              <p className="text-sm font-bold text-slate-600 uppercase tracking-wider group-hover:text-slate-900 transition-colors">
-                {stat.label}
-              </p>
+              <div className="text-center mb-8 md:mb-10">
+                <div className="text-5xl md:text-6xl mb-4 group-hover:scale-110 transition-transform duration-500">{brand.icon}</div>
+                <h3 className="text-2xl md:text-3xl font-black text-white">{brand.name}</h3>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-1">{brand.category}</p>
+              </div>
+
+              <div className="bg-black/20 rounded-xl md:rounded-2xl p-3 md:p-4 mb-6">
+                <p className="text-blue-100 text-xs md:text-sm font-bold text-center italic">{brand.offer}</p>
+              </div>
+
+              <button className="w-full py-3 md:py-4 bg-white text-[#001220] rounded-xl md:rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-blue-500 hover:text-white transition-all cursor-pointer">
+                Shop Brand <ArrowUpRight size={18} />
+              </button>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
+
+        {/* --- ثانياً: قسم الإعلان المميز (Sponsored Spotlight) --- */}
+        {finalSpotlight && (
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-[32px] md:rounded-[40px] overflow-hidden bg-blue-600 p-[1px] shadow-2xl"
+          >
+            <div className="bg-[#001f35] rounded-[31px] md:rounded-[39px] p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row items-center gap-8 md:gap-12">
+              
+              <div className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2">
+                <div className="px-2 md:px-3 py-1 rounded-full bg-blue-500 text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest cursor-default">
+                  Featured Deal
+                </div>
+                <span className="text-slate-500 text-[8px] md:text-[10px] font-bold uppercase tracking-tighter">Sponsored Spotlight</span>
+              </div>
+
+              <div className="lg:w-1/2 mt-8 lg:mt-0">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 flex items-center justify-center text-xl md:text-2xl font-bold text-white border border-white/10">
+                    {finalSpotlight.initials}
+                  </div>
+                  <div>
+                    <h4 className="text-white font-black text-lg md:text-xl">{finalSpotlight.name}</h4>
+                    <p className="text-blue-400 text-[10px] md:text-xs font-bold">{finalSpotlight.role}</p>
+                  </div>
+                </div>
+                <h3 className="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] mb-6">
+                  {finalSpotlight.headline} <span className="text-blue-500 italic">{finalSpotlight.lastWordofHeadline}</span>
+                </h3>
+                <p className="text-slate-400 text-base md:text-lg mb-8 leading-relaxed">
+                  {finalSpotlight.desc}
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <a target='_blank' rel="noreferrer" href={finalSpotlight.link || "#"} className="px-8 py-4 bg-blue-600 text-white rounded-xl md:rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20 cursor-pointer text-center">
+                    Claim Offer Now <ShoppingBag size={18} />
+                  </a>
+                </div>
+              </div>
+
+              <div className="lg:w-1/2 w-full aspect-video rounded-2xl md:rounded-3xl bg-black/40 border border-white/5 relative overflow-hidden group">
+                 <img 
+                   src={finalSpotlight.image} 
+                   alt={finalSpotlight.name} 
+                   className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-t from-[#001220] via-transparent to-transparent pointer-events-none" />
+                 <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6 bg-blue-600 backdrop-blur px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl shadow-xl">
+                    <p className="text-white text-[8px] md:text-[10px] font-black uppercase tracking-widest">{finalSpotlight.badgeText}</p>
+                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* --- ثالثاً: شعارات الشركاء السريعة --- */}
+        <div className="mt-12 md:mt-16 flex flex-wrap justify-center items-center gap-6 md:gap-12 lg:gap-16 opacity-30 grayscale hover:opacity-100 hover:grayscale-0 transition-all duration-700">
+          {['CORSAIR', 'MSI', 'GIGABYTE', 'RAZER', 'LOGITECH', 'KINGSTON'].map((logo) => (
+            <span key={logo} className="text-base md:text-xl font-black text-white tracking-tighter cursor-pointer transition-colors hover:text-blue-500">
+              {logo}
+            </span>
+          ))}
+        </div>
+
+        {/* --- تذييل القسم --- */}
+        <div className="mt-16 md:mt-20 pt-10 md:pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
+          <p className="text-slate-500 text-xs md:text-sm font-medium">
+            Want to showcase your hardware to 250k+ monthly enthusiasts?
+          </p>
+          <a href="/contact" className="group flex items-center gap-2 text-white font-black text-[10px] md:text-xs uppercase tracking-widest hover:text-blue-400 transition-colors cursor-pointer">
+            Become a Partner <ChevronRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          </a>
+        </div>
       </div>
     </section>
   );

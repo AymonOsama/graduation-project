@@ -46,41 +46,45 @@ const Login = () => {
     const onclickLogin = (e) => {
         e.preventDefault();
 
-        // Authentication: Find user matching both email and password from JSON data
+        // 1. البحث عن المستخدم
         const foundUser = Users.users.find(
             user => user.email === formData.email && user.password === formData.password
         );
 
         if (foundUser) {
-            // Persistent Login Logic
+            // تجهيز بيانات بسيطة للتخزين (الـ ID فقط)
+            const userSession = { id: foundUser.id };
+
             if (rememberMe) {
-                console.log("Saving user credentials to LocalStorage...");
-                localStorage.setItem("rememberedUser", JSON.stringify(foundUser));
+                // تخزين الـ ID في LocalStorage ليبقى حتى بعد غلق المتصفح
+                localStorage.setItem("rememberedUser", JSON.stringify(userSession));
+                // ملحوظة: لو عايز الـ Auto-fill يشتغل المرة الجاية، يفضل تخزن الإيميل والباشورد كمان 
+                // بس إحنا هنا ماشيين بمبدأ تخزين الـ ID للأمان.
             } else {
-                // Clear storage if user chooses not to be remembered
-                sessionStorage.setItem("rememberedUser", JSON.stringify(foundUser));
+                // تخزين الـ ID في SessionStorage ينتهي بقفل التبويب
+                sessionStorage.setItem("rememberedUser", JSON.stringify(userSession));
             }
 
             toast.success("Login successful!");
             
-            // Brief delay to ensure storage operations and toast are processed before redirecting
             setTimeout(() => {
                 navigate("/home");
             }, 100); 
             
         } else {
-            // Error Handling: Invalid credentials
-            toast.error("Invalid email or password. Please try again.");
+// Error Handling: Invalid credentials
+toast.error("Invalid email or password. Please try again.");
 
-            // Security Logic: Lock out after 3 failed attempts
-            const nextCount = countsTry + 1;
-            setCountsTry(nextCount);
+// Security Logic: Lock out after 3 failed attempts
+const nextCount = countsTry + 1;
+setCountsTry(nextCount);
 
-            if (nextCount > 3) {
-                toast.error("Too many failed attempts. Redirecting to recovery...");
-                navigate("/forget-password");
-            }
-        }
+if (nextCount > 3) {
+toast.error("Too many failed attempts. Redirecting to recovery...");
+navigate("/forget-password");
+}
+}
+
     };
 
     return (

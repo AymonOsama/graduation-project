@@ -5,7 +5,7 @@ import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const SearchBar = () => {
+const SearchBar = ({onSearchSuccess}) => {
     const [isFocused, setIsFocused] = useState(false);
     const [searchValue, setSearchValue] = useState('');
     const inputRef = useRef(null);
@@ -32,11 +32,16 @@ const SearchBar = () => {
             
             setIsFocused(false);
             inputRef.current?.blur();
+
+            // ✨ التعديل الجديد: إذا مررنا الدالة، قم بتنفيذها لإغلاق المنيو
+            if (onSearchSuccess) {
+                onSearchSuccess();
+            }
         }
-    }, [searchValue, navigate]);
+    }, [searchValue, navigate, onSearchSuccess]);
 
     return (
-        <div className="hidden md:flex flex-1 justify-center px-4 max-w-lg relative">
+        <div className="flex flex-1 justify-center px-4 max-w-lg relative w-full">
             <form onSubmit={handleSubmit} className="relative w-full group">
                 
                 {/* ✨ MAIN CONTAINER */}
