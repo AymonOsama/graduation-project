@@ -3,7 +3,7 @@ import { useParams, useSearchParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 
 // Imported Child Components
-import FilterSidebar from '../components/CategoryCom/FilterSidebar'
+import FilterSidebar from '../components/CategoryCom/FilterSidebar';
 import PageHeader from '../components/CategoryCom/PageHeader';
 import ProductGrid from '../components/CategoryCom/ProductGrid';
 import Pagination from '../components/CategoryCom/Pagination';
