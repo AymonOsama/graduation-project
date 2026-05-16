@@ -46,7 +46,10 @@ const NavBar = () => {
         };
 
         window.addEventListener("wishlistUpdated", handleWishlistUpdate);
-        return () => window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+        
+        return () => {
+            window.removeEventListener("wishlistUpdated", handleWishlistUpdate);
+        };
     }, []);
 
     const handlelogout = () => {
@@ -91,17 +94,22 @@ const NavBar = () => {
 
     return (
         <nav className="z-[100] w-full bg-white border-b border-gray-100 shadow-sm sticky top-0 font-sans select-none">
+            
             <div className="max-w-[100%] mx-auto px-4 md:px-12">
+                
                 <div className="flex items-center justify-between h-20 gap-2 md:gap-4">
 
                     {/* Logo */}
                     <div className="flex-shrink-0 z-50">
-                        <Link to="/home" className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter">
+                        <Link 
+                            to="/home" 
+                            className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter"
+                        >
                             COMP<span className="text-black">ARO</span>
                         </Link>
                     </div>
 
-                    {/* Search */}
+                    {/* Desktop Search */}
                     <div className="hidden lg:block flex-1 max-w-md mx-8">
                         <SearchBar />
                     </div>
@@ -110,9 +118,12 @@ const NavBar = () => {
 
                         {/* Desktop Nav */}
                         <div className="hidden lg:flex items-center space-x-6 text-sm font-bold">
-                            <NavLink to="/home" className={activeLinkStyles}>Home</NavLink>
 
-                            {/* 🔥 FIXED AREA */}
+                            <NavLink to="/home" className={activeLinkStyles}>
+                                Home
+                            </NavLink>
+
+                            {/* Categories */}
                             <div
                                 className="static group"
                                 onMouseEnter={handleCategoryEnter}
@@ -123,7 +134,10 @@ const NavBar = () => {
                                     className={`${isCategoryOpen ? "text-blue-600" : "text-gray-700"} flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer font-bold`}
                                 >
                                     Explore Categories
-                                    <motion.div animate={{ rotate: isCategoryOpen ? 180 : 0 }}>
+
+                                    <motion.div 
+                                        animate={{ rotate: isCategoryOpen ? 180 : 0 }}
+                                    >
                                         <ChevronDown size={14} />
                                     </motion.div>
                                 </button>
@@ -135,20 +149,36 @@ const NavBar = () => {
                                 />
                             </div>
 
-                            <NavLink to="/about-us" className={activeLinkStyles}>About Us</NavLink>
-                            <NavLink to="/contact" className={activeLinkStyles}>Contact</NavLink>
+                            <NavLink to="/about-us" className={activeLinkStyles}>
+                                About Us
+                            </NavLink>
+
+                            <NavLink to="/contact" className={activeLinkStyles}>
+                                Contact
+                            </NavLink>
+
                         </div>
 
                         {/* Actions */}
                         <div className="flex items-center space-x-1 md:space-x-4 border-l pl-2 md:pl-8 border-gray-200">
 
+                            {/* Favorites */}
                             {user?.isPremium ? (
-                                <Link to="/favorites" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
-                                    <Heart size={20} className="group-hover:text-red-500 transition-colors" />
+                                <Link 
+                                    to="/favorites" 
+                                    className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all"
+                                >
+                                    <Heart 
+                                        size={20} 
+                                        className="group-hover:text-red-500 transition-colors" 
+                                    />
+
                                     <AnimatePresence>
                                         {wishlistCount > 0 && (
                                             <motion.span 
-                                                initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}
+                                                initial={{ scale: 0 }}
+                                                animate={{ scale: 1 }}
+                                                exit={{ scale: 0 }}
                                                 className="absolute top-1 right-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold min-w-[18px] text-center"
                                             >
                                                 {wishlistCount}
@@ -162,6 +192,7 @@ const NavBar = () => {
                                 </div>
                             )}
 
+                            {/* User Menu */}
                             <UserMenu 
                                 isOpen={isUserMenuOpen} 
                                 setIsOpen={setIsUserMenuOpen} 
@@ -169,6 +200,7 @@ const NavBar = () => {
                                 onLogout={handlelogout} 
                             />
 
+                            {/* Mobile Toggle */}
                             <button 
                                 className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full"
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -181,36 +213,91 @@ const NavBar = () => {
                 </div>
             </div>
 
-            {/* Mobile Sidebar (UNCHANGED) */}
+            {/* ================= MOBILE SIDEBAR ================= */}
             <AnimatePresence>
                 {isMenuOpen && (
                     <>
+                        {/* Overlay */}
                         <motion.div 
-                            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
-                            onClick={() => setIsMenuOpen(false)} 
-                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] lg:hidden" 
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[55] lg:hidden"
                         />
+
+                        {/* Sidebar */}
                         <motion.div 
-                            initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
-                            transition={{ type: 'spring', damping: 25, stiffness: 250 }} 
-                            className="fixed inset-y-0 right-0 w-full md:w-80 bg-white z-[60] lg:hidden shadow-2xl overflow-y-auto" 
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ 
+                                type: 'spring', 
+                                damping: 25, 
+                                stiffness: 250 
+                            }}
+                            className="fixed inset-y-0 right-0 w-full md:w-80 bg-white z-[60] lg:hidden shadow-2xl overflow-y-auto"
                         >
+                            {/* Header */}
                             <div className="flex items-center justify-between p-6 border-b border-gray-50">
-                                <span className="font-black text-blue-600 uppercase tracking-tighter">Menu</span>
-                                <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100">
+                                
+                                <span className="font-black text-blue-600 uppercase tracking-tighter">
+                                    Menu
+                                </span>
+
+                                <button 
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-2 bg-gray-50 rounded-full hover:bg-gray-100"
+                                >
                                     <X size={20} />
                                 </button>
+
                             </div>
 
+                            {/* Content */}
                             <div className="p-6 flex flex-col">
-                                <SearchBar onSearchSuccess={() => setIsMenuOpen(false)} />
 
+                                <SearchBar 
+                                    onSearchSuccess={() => setIsMenuOpen(false)} 
+                                />
+
+                                {/* 🔥 FIXED LINKS */}
                                 <nav className="flex flex-col space-y-5 mt-6">
-                                    <NavLink to="/home" className="text-xl font-black">Home</NavLink>
-                                    <NavLink to="/categories" className="text-xl font-black">Explore categories</NavLink>
-                                    <NavLink to="/about-us" className="text-xl font-black">About Us</NavLink>
-                                    <NavLink to="/contact" className="text-xl font-black">Contact Us</NavLink>
+
+                                    <NavLink 
+                                        to="/home" 
+                                        className="text-xl font-black"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Home
+                                    </NavLink>
+
+                                    <NavLink 
+                                        to="/categories" 
+                                        className="text-xl font-black"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Explore categories
+                                    </NavLink>
+
+                                    <NavLink 
+                                        to="/about-us" 
+                                        className="text-xl font-black"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        About Us
+                                    </NavLink>
+
+                                    <NavLink 
+                                        to="/contact" 
+                                        className="text-xl font-black"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Contact Us
+                                    </NavLink>
+
                                 </nav>
+
                             </div>
                         </motion.div>
                     </>
