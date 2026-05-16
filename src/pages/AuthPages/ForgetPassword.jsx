@@ -1,68 +1,119 @@
-import React from 'react';
-import loginWallpaper from '../../assets/loginPagesWallpaper.jpg';
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, ChevronRight, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Mail, ChevronRight, ArrowLeft, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+// Assets
+import loginWallpaper from '../../assets/loginPagesWallpaper.jpg';
 
 const ForgetPassword = () => {
-  return (
-    <div 
-      style={{ backgroundImage: `url(${loginWallpaper})` }}
-      className="min-h-screen flex items-center justify-center p-6 bg-cover bg-center bg-no-repeat relative font-sans"
-    >
-      {/* Background Overlay */}
-      <div className="absolute inset-0 bg-black/40"></div>
+    const navigate = useNavigate();
+    const [email, setEmail] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        // Using max-w-xl for a balanced, premium card width
-        className="max-w-xl w-full bg-white/70 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/50 p-10 md:p-14 z-10"
-      >
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <motion.h2 className="text-4xl md:text-5xl font-black text-black tracking-tighter mb-4">
-            Reset Password
-          </motion.h2>
-          <div className="h-2 w-20 bg-blue-500 mx-auto rounded-full"></div>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        toast.dismiss();
+        setIsSubmitting(true);
+
+        // محاكاة إرسال ايميل الاستعادة
+        setTimeout(() => {
+            toast.success("Reset link sent to your email!", {
+                duration: 4000,
+                style: {
+                    background: '#FFFFFF',
+                    color: '#111827',
+                    padding: '12px 24px',
+                    borderRadius: '16px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    border: '1px solid #F3F4F6',
+                },
+            });
+            setIsSubmitting(false);
+            // اختياري: توجيه المستخدم للوجين بعد الإرسال
+            // navigate("/login");
+        }, 1500);
+    };
+
+    return (
+        <div 
+            style={{ backgroundImage: `url(${loginWallpaper})` }}
+            className="min-h-screen flex items-center justify-center p-6 bg-cover bg-center relative font-sans"
+        >
+            {/* Overlay ناعم */}
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[3px]"></div>
+
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-xl w-full bg-white/90 backdrop-blur-2xl rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.1)] border border-white p-10 md:p-14 z-10"
+            >
+                {/* Header Section */}
+                <header className="text-center mb-10">
+                    <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: "80px" }}
+                        className="h-1.5 bg-blue-600 mx-auto rounded-full mb-6"
+                    />
+                    <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight mb-3">
+                        Recovery
+                    </h2>
+                    <p className="text-gray-500 font-semibold tracking-wide uppercase text-xs">
+                        Reset your account password
+                    </p>
+                </header>
+
+                {/* Informational Text */}
+                <p className='text-gray-500 text-center mb-10 font-bold text-sm leading-relaxed'>
+                    Enter the email associated with your account and we'll send a magic link to reset your password.
+                </p>
+
+                {/* Reset Form */}
+                <form className="space-y-8" onSubmit={handleSubmit}>
+                    <div className="relative group">
+                        <input 
+                            name="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            type="email" 
+                            placeholder="Email Address"
+                            className="w-full px-5 py-4 bg-gray-50 border-2 border-gray-100 rounded-2xl outline-none transition-all focus:border-blue-500 focus:bg-white text-gray-900 font-bold placeholder:text-gray-400"
+                            required
+                        />
+                        <Mail className="absolute right-5 top-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                    </div>
+
+                    {/* Action Button */}
+                    <motion.button 
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        disabled={isSubmitting}
+                        type="submit"
+                        className="w-full bg-gray-900 hover:bg-black disabled:bg-gray-400 text-white font-black py-5 rounded-2xl shadow-lg transition-all flex items-center justify-center gap-3 cursor-pointer text-lg uppercase tracking-widest"
+                    >
+                        {isSubmitting ? (
+                            <Loader2 className="animate-spin" size={24} />
+                        ) : (
+                            <>
+                                Send Reset Link
+                                <ChevronRight size={22} />
+                            </>
+                        )}
+                    </motion.button>
+                </form>
+
+                {/* Navigation Footer */}
+                <footer className="text-center mt-12">
+                    <Link to="/login" className="text-gray-500 font-bold hover:text-blue-600 transition-colors flex items-center justify-center gap-2 group text-sm">
+                        <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                        Back to Login
+                    </Link>
+                </footer>
+            </motion.div>
         </div>
-
-        {/* Informational Text */}
-        <p className='text-black/70 text-center my-16 font-medium leading-relaxed'>
-          Enter the email associated with your account and we'll send a magic link to reset your password.
-        </p>
-
-        {/* Reset Form */}
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-          <div className="group space-y-2">
-            <div className="relative">
-              <input 
-                type="email" 
-                placeholder="Email Address"
-                className="w-full pl-2 pr-10 py-3 bg-transparent border-b-2 border-black/20 outline-none transition-all duration-300 focus:border-blue-500 text-black text-lg font-bold placeholder:text-black/30"
-              />
-              <Mail className="absolute right-2 top-3 text-black/60 group-focus-within:text-blue-500 transition-colors" size={22} />
-            </div>
-          </div>
-
-          {/* Action Button */}
-          <button className="w-full bg-blue-500 hover:bg-blue-600 text-white font-black py-5 rounded-[2rem] shadow-[0_15px_30px_rgba(59,130,246,0.3)] transition-all duration-300 flex items-center justify-center gap-3 group cursor-pointer text-xl tracking-widest active:scale-95">
-            Send Reset Link
-            <ChevronRight size={22} className="group-hover:translate-x-2 transition-transform" />
-          </button>
-        </form>
-
-        {/* Navigation Footer */}
-        <div className="text-center mt-12">
-            <Link to="/login" className="text-black/50 font-bold hover:text-black transition-colors flex items-center justify-center gap-2 group">
-                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                Back to Login
-            </Link>
-        </div>
-      </motion.div>
-    </div>
-  );
+    );
 };
 
 export default ForgetPassword;

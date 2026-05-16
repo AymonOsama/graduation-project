@@ -1,0 +1,51 @@
+[
+  {
+    "id": "1",
+    "userName": "Ayman Osama",
+    "userEmail": "ayman.osama@example.com",
+    "title": "Price Comparison Not Working",
+    "message": "The price comparison feature is showing incorrect prices for GPU listings. Please fix this issue."
+  },
+  {
+    "id": "2",
+    "userName": "Sarah Mohamed",
+    "userEmail": "sarah.m@example.com",
+    "title": "Billing Issue",
+    "message": "I was charged twice for my premium subscription this month. Need refund for duplicate charge."
+  },
+  {
+    "id": "3",
+    "userName": "Ahmed Hassan",
+    "userEmail": "ahmed.hassan@example.com",
+    "title": "Mobile App Crash",
+    "message": "The app crashes when I try to save products to favorites on Android device."
+  },
+  {
+    "id": "4",
+    "userName": "Omar Ali",
+    "userEmail": "omar.ali@example.com",
+    "title": "Account Activation",
+    "message": "I didn't receive the verification email after signing up. Can you trigger it manually?"
+  },
+  {
+    "id": "5",
+    "userName": "Mariam Mahmoud",
+    "userEmail": "mariam.m@example.com",
+    "title": "Ad Placement Bug",
+    "message": "The main slider advert overlaps with the sidebar navigation on Safari browser."
+  },
+  {
+    "id": "6",
+    "userName": "Mostafa Zein",
+    "userEmail": "mostafa.z@example.com",
+    "title": "Slow Search Results",
+    "message": "Querying laptop specifications takes more than 5 seconds to load over a stable connection."
+  },
+  {
+    "id": "7",
+    "userName": "Nour El-Din",
+    "userEmail": "nour.din@example.com",
+    "title": "Dark Mode Contrast",
+    "message": "Some text elements in the product management dashboard are barely visible when dark mode is enabled."
+  }
+]

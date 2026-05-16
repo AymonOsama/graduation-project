@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { ShoppingCart, CheckCircle, ChevronUp, ChevronDown, Store } from 'lucide-react';
 
+//import context
+import { useProducts } from '../context/ProductsContext';
+
+
 const ProductPage = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);

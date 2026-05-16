@@ -11,8 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast'; 
 import { IoHeartDislikeOutline } from "react-icons/io5";
 
-// تأكد من صحة مسار ملف الـ JSON الخاص بك
-import usersDataJ from '../data/users.json';
+import { useAuth } from '../context/AuthContext';
 
 import SearchBar from './NavBarCom/SearchBar'; 
 import MegaMenu from './NavBarCom/MegaMenu';
@@ -20,9 +19,12 @@ import UserMenu from './NavBarCom/UserMenu';
 
 const NavBar = () => {
     const navigate = useNavigate();
+    const closeTimeout = React.useRef(null);
+
+    const { user, logout } = useAuth();
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-    const [userData, setUserData] = useState(null);
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [wishlistCount, setWishlistCount] = useState(0);
 
@@ -32,26 +34,6 @@ const NavBar = () => {
             : "text-gray-700 hover:text-blue-600 transition-colors";
 
     useEffect(() => {
-        // 1. جلب بيانات الجلسة
-        const savedUserData = localStorage.getItem('rememberedUser') || sessionStorage.getItem('rememberedUser');
-
-        if (savedUserData) {
-            try {
-                const parsedUser = JSON.parse(savedUserData);
-                
-                // 2. البحث عن بيانات المستخدم الكاملة (بما فيها حالة الـ Premium) من الملف المحلي
-                const fullUserData = usersDataJ.users.find(
-                    (u) => u.id === String(parsedUser.id)
-                );
-
-                // تخزين البيانات في State واحدة لتجنب التشتت
-                setUserData(fullUserData || parsedUser);
-            } catch (error) {
-                console.error("Error parsing user data:", error);
-            }
-        }
-
-        // 3. تحديث عدد المفضلات
         const updateCount = () => {
             const savedFavorites = JSON.parse(localStorage.getItem("favoriteProducts") || "[]");
             setWishlistCount(savedFavorites.length);
@@ -59,7 +41,6 @@ const NavBar = () => {
 
         updateCount();
 
-        // 4. المستمع للتغييرات (Listener)
         const handleWishlistUpdate = (event) => {
             setWishlistCount(event.detail);
         };
@@ -69,9 +50,7 @@ const NavBar = () => {
     }, []);
 
     const handlelogout = () => {
-        localStorage.removeItem('rememberedUser');
-        sessionStorage.removeItem('rememberedUser');
-        setUserData(null);
+        logout();
         setIsUserMenuOpen(false);
         navigate('/login'); 
         toast.success('Logged out successfully!');
@@ -96,11 +75,25 @@ const NavBar = () => {
         }
     ];
 
+    // =========================
+    // FIX: MegaMenu Hover Stability
+    // =========================
+    const handleCategoryEnter = () => {
+        if (closeTimeout.current) clearTimeout(closeTimeout.current);
+        setIsCategoryOpen(true);
+    };
+
+    const handleCategoryLeave = () => {
+        closeTimeout.current = setTimeout(() => {
+            setIsCategoryOpen(false);
+        }, 180);
+    };
+
     return (
         <nav className="z-[100] w-full bg-white border-b border-gray-100 shadow-sm sticky top-0 font-sans select-none">
             <div className="max-w-[100%] mx-auto px-4 md:px-12">
                 <div className="flex items-center justify-between h-20 gap-2 md:gap-4">
-                    
+
                     {/* Logo */}
                     <div className="flex-shrink-0 z-50">
                         <Link to="/home" className="text-xl md:text-2xl font-black text-blue-600 tracking-tighter">
@@ -108,19 +101,25 @@ const NavBar = () => {
                         </Link>
                     </div>
 
-                    {/* Search Bar Desktop */}
+                    {/* Search */}
                     <div className="hidden lg:block flex-1 max-w-md mx-8">
                         <SearchBar />
                     </div>
 
                     <div className="flex items-center space-x-2 md:space-x-8">
-                        {/* Nav Links Desktop */}
+
+                        {/* Desktop Nav */}
                         <div className="hidden lg:flex items-center space-x-6 text-sm font-bold">
                             <NavLink to="/home" className={activeLinkStyles}>Home</NavLink>
-                            
-                            <div className="static group" onMouseLeave={() => setIsCategoryOpen(false)}>
+
+                            {/* 🔥 FIXED AREA */}
+                            <div
+                                className="static group"
+                                onMouseEnter={handleCategoryEnter}
+                                onMouseLeave={handleCategoryLeave}
+                            >
                                 <button 
-                                    onMouseEnter={() => setIsCategoryOpen(true)}
+                                    onMouseEnter={handleCategoryEnter}
                                     className={`${isCategoryOpen ? "text-blue-600" : "text-gray-700"} flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer font-bold`}
                                 >
                                     Explore Categories
@@ -128,7 +127,12 @@ const NavBar = () => {
                                         <ChevronDown size={14} />
                                     </motion.div>
                                 </button>
-                                <MegaMenu isOpen={isCategoryOpen} setIsOpen={setIsCategoryOpen} categories={categories} />
+
+                                <MegaMenu 
+                                    isOpen={isCategoryOpen} 
+                                    setIsOpen={setIsCategoryOpen} 
+                                    categories={categories} 
+                                />
                             </div>
 
                             <NavLink to="/about-us" className={activeLinkStyles}>About Us</NavLink>
@@ -137,9 +141,8 @@ const NavBar = () => {
 
                         {/* Actions */}
                         <div className="flex items-center space-x-1 md:space-x-4 border-l pl-2 md:pl-8 border-gray-200">
-                            
-                            {/* التحكم في أيقونة المفضلات بناءً على حالة الـ Premium */}
-                            {userData?.isPremium ? (
+
+                            {user?.isPremium ? (
                                 <Link to="/favorites" className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-full group transition-all">
                                     <Heart size={20} className="group-hover:text-red-500 transition-colors" />
                                     <AnimatePresence>
@@ -154,7 +157,7 @@ const NavBar = () => {
                                     </AnimatePresence>
                                 </Link>
                             ) : (
-                                <div className="relative p-2 text-gray-300 rounded-full cursor-not-allowed group" title="Premium Feature">
+                                <div className="relative p-2 text-gray-300 rounded-full cursor-not-allowed group">
                                     <IoHeartDislikeOutline size={22} />
                                 </div>
                             )}
@@ -162,19 +165,23 @@ const NavBar = () => {
                             <UserMenu 
                                 isOpen={isUserMenuOpen} 
                                 setIsOpen={setIsUserMenuOpen} 
-                                userData={userData} 
+                                userData={user} 
                                 onLogout={handlelogout} 
                             />
 
-                            <button className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            <button 
+                                className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-full"
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            >
                                 {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                             </button>
+
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Mobile Sidebar */}
+            {/* Mobile Sidebar (UNCHANGED) */}
             <AnimatePresence>
                 {isMenuOpen && (
                     <>
@@ -185,27 +192,24 @@ const NavBar = () => {
                         />
                         <motion.div 
                             initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} 
-                            transition={{ type: 'spring', damping: 25, stiffness: 200 }} 
+                            transition={{ type: 'spring', damping: 25, stiffness: 250 }} 
                             className="fixed inset-y-0 right-0 w-full md:w-80 bg-white z-[60] lg:hidden shadow-2xl overflow-y-auto" 
                         >
                             <div className="flex items-center justify-between p-6 border-b border-gray-50">
                                 <span className="font-black text-blue-600 uppercase tracking-tighter">Menu</span>
-                                <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors">
+                                <button onClick={() => setIsMenuOpen(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100">
                                     <X size={20} />
                                 </button>
                             </div>
+
                             <div className="p-6 flex flex-col">
-                                <div className="mb-8 w-full">
-                                    <SearchBar onSearchSuccess={() => setIsMenuOpen(false)} />
-                                </div>
-                                <nav className="flex flex-col space-y-5">
-                                    <NavLink to="/home" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>Home</NavLink>
-                                    <NavLink to="/categories" className={({ isActive }) => `text-xl font-black transition-colors flex items-center justify-between ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>
-                                        Explore categories <Zap size={20} className="text-gray-400" />
-                                    </NavLink>
-                                    <hr className="border-gray-100 my-2" />
-                                    <NavLink to="/about-us" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>About Us</NavLink>
-                                    <NavLink to="/contact" className={({ isActive }) => `text-xl font-black transition-colors ${isActive ? 'text-blue-600' : 'text-gray-800'}`} onClick={() => setIsMenuOpen(false)}>Contact Us</NavLink>
+                                <SearchBar onSearchSuccess={() => setIsMenuOpen(false)} />
+
+                                <nav className="flex flex-col space-y-5 mt-6">
+                                    <NavLink to="/home" className="text-xl font-black">Home</NavLink>
+                                    <NavLink to="/categories" className="text-xl font-black">Explore categories</NavLink>
+                                    <NavLink to="/about-us" className="text-xl font-black">About Us</NavLink>
+                                    <NavLink to="/contact" className="text-xl font-black">Contact Us</NavLink>
                                 </nav>
                             </div>
                         </motion.div>

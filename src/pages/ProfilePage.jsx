@@ -1,64 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-// ضفنا أيقونات جديدة تليق بالصلاحيات
 import { User, Mail, Edit2, Check, Crown, Zap, ShieldCheck, Users, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import users from '../data/users.json'; // تأكد من المسار الصحيح للملف
+// استدعاء الـ Auth الجديد
+import { useAuth } from '../context/AuthContext';
 
 const ProfilePage = () => {
-  // --- 1. State Management ---
+  // --- 1. جلب بيانات المستخدم من الـ Auth الجديد ---
+  const { currentUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  
   const [profile, setProfile] = useState({
     firstName: '', 
     lastName: '', 
     email: '',
-    role: '', // 'super_admin' أو 'admin' أو 'user'
-    isPremium: false, 
-    avatar: '👨‍💻'
+    role: 'user', 
+    isPremium: false,
   });
 
-// --- 2. Fetch User Data on Load ---
-useEffect(() => {
-  const fetchProfileData = () => {
-    // جلب النص الخام من الـ Storage
-    const rawData = localStorage.getItem('rememberedUser') || sessionStorage.getItem('rememberedUser');
-    
-    if (rawData) {
-      try {
-        // فك النص من صيغة JSON
-        const parsedData = JSON.parse(rawData);
-        
-        // استخراج الـ ID سواء كان النص عبارة عن ID فقط أو Object كامل
-        const userId = parsedData.id ? parsedData.id : parsedData;
-
-        // ملاحظة: بما أن صفحة البروفايل غالباً بتحتاج بيانات أكتر (الأسم، الإيميل، الـ Role)
-        // فلو الـ Storage فيه الـ ID بس، يفضل تبحث في ملف الـ JSON بتاعك عشان تجيب باقي البيانات
-        
-        // لنفترض أنك عملت import لملف الـ users عندك كـ (import users from '../../data/users.json')
-        if (users && users.users) {
-          const currentUser = users.users.find(u => String(u.id).trim() === String(userId).trim());
-          
-          if (currentUser) {
-            setProfile({
-              firstName: currentUser.firstName || '',
-              lastName: currentUser.lastName || '',
-              email: currentUser.email || '',
-              role: currentUser.role || 'user',
-              isPremium: currentUser.isPremium || false,
-              avatar: currentUser.avatar || '👨‍💻'
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing user data in ProfilePage:", error);
-      }
+  // --- 2. مزامنة الـ State المحلية مع الـ Context فور تحميله أو تغيره ---
+  useEffect(() => {
+    if (currentUser) {
+      setProfile({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        role: currentUser.role || 'user',
+        isPremium: currentUser.isPremium || false,
+      });
     }
+  }, [currentUser]);
+
+  // --- 3. دالة ذكية لتوليد أول حرفين من الاسم (User Initials) ---
+  const getInitials = () => {
+    const first = profile.firstName?.trim()?.charAt(0) || '';
+    const last = profile.lastName?.trim()?.charAt(0) || '';
+    
+    if (first || last) {
+      return `${first}${last}`.toUpperCase();
+    }
+    
+    // Fallback في حالة عدم وجود أسماء (يأخذ أول حرفين من الإيميل)
+    return profile.email ? profile.email.substring(0, 2).toUpperCase() : 'CU';
   };
 
-  fetchProfileData();
-}, []);
-
-  // --- 3. Configuration for Dynamic Fields ---
+  // --- 4. Configuration for Dynamic Fields ---
   const fields = [
     { id: 'firstName', label: 'First Name', icon: User },
     { id: 'lastName', label: 'Last Name', icon: User },
@@ -104,11 +90,12 @@ useEffect(() => {
             {/* Identity Section */}
             <div className="flex flex-col items-center mb-10">
               <div className="relative">
+                {/* تم تعديل الـ Avatar هنا إلى أحرف المستخدم مع Gradient فخم */}
                 <motion.div 
                   whileHover={{ rotate: 5, scale: 1.05 }}
-                  className="w-36 h-36 rounded-[2.5rem] bg-white flex items-center justify-center text-7xl shadow-2xl border-4 border-white"
+                  className="w-36 h-36 rounded-[2.5rem] bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-4xl font-black text-white shadow-2xl border-4 border-white select-none tracking-wider"
                 >
-                  {profile.avatar}
+                  {getInitials()}
                 </motion.div>
 
                 {/* تظهر فقط للـ Premium */}
@@ -124,20 +111,20 @@ useEffect(() => {
               </div>
 
               <motion.h2 layout="position" className="text-3xl font-black text-slate-800 mt-6 tracking-tight uppercase">
-                {profile.firstName} {profile.lastName}
+                {profile.firstName || '—'} {profile.lastName || '—'}
               </motion.h2>
               
               {/* --- Badges Section (RBAC UI) --- */}
               <div className="flex flex-wrap justify-center gap-2 mt-4">
                 
-                {/* 1. Super Admin Badge - Gradient مميز */}
+                {/* 1. Super Admin Badge */}
                 {profile.role === 'super_admin' && (
                   <span className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-purple-200">
                     <ShieldCheck size={14} /> Super Admin
                   </span>
                 )}
 
-                {/* 2. Admin Badge - أسود كلاسيك */}
+                {/* 2. Admin Badge */}
                 {profile.role === 'admin' && (
                   <span className="px-5 py-2 rounded-xl bg-slate-900 text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-2">
                     <Settings size={14} /> Admin
@@ -175,12 +162,12 @@ useEffect(() => {
                   </div>
                 </div>
                 <Link to="/admin">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold text-xs shadow-md shadow-purple-100"
-                >
-                  Manage Users
-                </motion.button>
+                  <motion.button 
+                    whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                    className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold text-xs shadow-md shadow-purple-100 cursor-pointer"
+                  >
+                    Admin Panal
+                  </motion.button>
                 </Link>
               </motion.div>
             )}
@@ -192,7 +179,7 @@ useEffect(() => {
                 layout
                 whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
                 onClick={() => setIsEditing(!isEditing)}
-                className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-xs transition-all shadow-xl ${
+                className={`flex items-center gap-2 px-10 py-4 rounded-2xl font-black text-xs transition-all shadow-xl cursor-pointer ${
                   isEditing ? 'bg-green-500 text-white shadow-green-200' : 'bg-blue-600 text-white shadow-blue-200'
                 }`}
               >
@@ -214,26 +201,24 @@ useEffect(() => {
                 </div>
               ))}
 
-              {/* Account Status - تم تعديلها لتشمل الـ Role */}
+              {/* Account Type Status */}
               <div className="md:col-span-1 space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Account Type</label>
                 <motion.div 
                   whileHover={{ x: 5 }}
                   className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 border border-gray-100"
                 >
-                  {/* تغيير الأيقونة بناءً على الـ Role */}
                   {profile.role.includes('admin') ? 
                     <ShieldCheck size={18} className="text-blue-600" /> : 
                     <User size={18} className="text-slate-400" />
                   }
                   <span className="font-bold text-slate-700 text-sm capitalize">
-                    {/* تحويل super_admin لـ Super Admin */}
                     {profile.role.replace('_', ' ')} Account
                   </span>
                 </motion.div>
               </div>
 
-              {/* Member Status */}
+              {/* Member Subscription Status */}
               <div className="md:col-span-1 space-y-2">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Subscription</label>
                 <motion.div 

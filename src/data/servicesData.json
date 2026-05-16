@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "iconName": "Search",
+    "title": "Smart Search",
+    "badge": "FREE",
+    "description": "Search across 500+ verified retailers instantly with real-time price comparison and advanced filtering.",
+    "benefits": [
+      "Real-time price comparison",
+      "500+ trusted stores",
+      "Advanced filters",
+      "Detailed product specs"
+    ]
+  },
+  {
+    "id": 2,
+    "iconName": "BarChart3",
+    "title": "Price Tracking & Favorites",
+    "badge": "PREMIUM",
+    "description": "Save unlimited favorites and monitor prices 24/7 with instant alerts, reports, and price history.",
+    "benefits": [
+      "Unlimited favorites",
+      "24/7 price monitoring",
+      "Price drop alerts",
+      "Price history charts"
+    ]
+  },
+  {
+    "id": 3,
+    "iconName": "ShieldCheck",
+    "title": "Premium & Secure Experience",
+    "badge": "PREMIUM",
+    "description": "Enjoy an ad-free experience with verified sellers, secure shopping, priority support, and exclusive deals.",
+    "benefits": [
+      "No ads",
+      "Verified sellers only",
+      "Priority support",
+      "Exclusive deals"
+    ]
+  }
+]

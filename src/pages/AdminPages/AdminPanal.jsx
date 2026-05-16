@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PlusCircle, Menu } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
-import usersData from '../../data/users.json'; 
 import toast, { Toaster } from 'react-hot-toast';
 
 // import components 
@@ -11,42 +10,21 @@ import UserManagement from '../../components/AdminCom/UserManagement';
 import ProductManagement from '../../components/AdminCom/ProductManagement';
 import AdvertsManagement from '../../components/AdminCom/AdvertsMangment';
 import AddAdminModal from '../../components/AdminCom/AddAdminModal';
+// استدعاء الكومبوننت الجديد
+import ComplaintsManagement from '../../components/AdminCom/ComplaintsManagement'; 
+
+//import auth
+import { useAuth } from '../../context/AuthContext';
+import { useAdmin } from '../../context/AdminContext';
 
 const AdminPanel = () => {
   const [activeTab, setActiveTab] = useState('products');
-  const [currentUser, setCurrentUser] = useState(null);
-  const [allUsers, setAllUsers] = useState(usersData.users);
+  const { currentUser } = useAuth();
+  const { allUsers, updateUserRole, deleteUser } = useAdmin();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const [isAddAdminModalOpen, setIsAddAdminModalOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
-
-  useEffect(() => {
-    const rawData = localStorage.getItem("rememberedUser") || sessionStorage.getItem("rememberedUser");
-    if (rawData) {
-      try {
-        const parsed = JSON.parse(rawData);
-        const userId = parsed?.id ? String(parsed.id) : String(rawData);
-        const user = allUsers.find(u => String(u.id) === userId);
-        setCurrentUser(user);
-      } catch (err) { 
-        console.error("Error parsing user data:", err); 
-      }
-    }
-  }, [allUsers]);
-
-  const handleUpdateRole = (userId, newRole) => {
-    setAllUsers(prevUsers => 
-      prevUsers.map(u => 
-        String(u.id) === String(userId) ? { ...u, role: newRole } : u
-      )
-    );
-    if (newRole === 'admin') toast.success("Admin assigned successfully!");
-  };
-
-  const handleDeleteUser = (userId) => {
-    setAllUsers(prevUsers => prevUsers.filter(u => String(u.id) !== String(userId)));
-  };
 
   const handleHeaderAction = () => {
     if (activeTab === 'admins') {
@@ -57,7 +35,6 @@ const AdminPanel = () => {
   };
 
   return (
-    // أضفنا select-none لمنع النسخ في كامل لوحة التحكم
     <div className="flex min-h-screen bg-gray-50 relative overflow-x-hidden select-none">
       <Toaster position="top-right" />
 
@@ -72,10 +49,10 @@ const AdminPanel = () => {
       </AnimatePresence>
 
       {/* 2. Sidebar Container */}
-      <div className={`fixed inset-y-0 left-0 z-0 transform 
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
+      <div className={`fixed inset-y-0 left-0 z-[70] transform w-72 lg:w-auto
+        ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'} 
         lg:translate-x-0 
-        lg:static lg:block lg:h-screen lg:sticky lg:top-0
+        lg:static lg:block lg:h-screen lg:sticky lg:top-0 lg:z-30
         transition-transform duration-300 ease-in-out`}>
           <Sidebar 
             activeTab={activeTab} 
@@ -129,8 +106,8 @@ const AdminPanel = () => {
             <ContentArea 
               activeTab={activeTab} 
               allUsers={allUsers} 
-              onUpdateRole={handleUpdateRole}
-              onDeleteUser={handleDeleteUser}
+              onUpdateRole={updateUserRole}
+              onDeleteUser={deleteUser}
               isProductModalOpen={isProductModalOpen} 
               setIsProductModalOpen={setIsProductModalOpen}
             />
@@ -145,7 +122,7 @@ const AdminPanel = () => {
             isOpen={isAddAdminModalOpen}
             onClose={() => setIsAddAdminModalOpen(false)}
             users={allUsers.filter(u => u.role === 'user')}
-            onUpdateRole={handleUpdateRole}
+            onUpdateRole={updateUserRole}
           />
         )}
       </AnimatePresence>
@@ -163,6 +140,9 @@ const ContentArea = ({ activeTab, allUsers, onUpdateRole, onDeleteUser, isProduc
       return <UserManagement allUsers={allUsers} onDeleteUser={onDeleteUser} />;
     case 'admins':
       return <AdminManagement allUsers={allUsers} onUpdateRole={onUpdateRole} onDeleteUser={onDeleteUser} />;
+    // الكيس الجديدة للشكاوى والمقترحات
+    case 'complaints':
+      return <ComplaintsManagement />;
     default:
       return (
         <div className="py-40 text-center cursor-default">

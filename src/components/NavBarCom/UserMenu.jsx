@@ -1,68 +1,29 @@
-import React, { useState, useEffect, useRef } from 'react'; // 1. أضفنا useRef
+import React, { useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, ChevronDown, ShieldAlert, Loader2 } from 'lucide-react'; 
-import users from '../../data/users.json';
+
+// 1. استيراد الـ Hook السحري
+import { useAuth } from '../../context/AuthContext'; 
 
 const UserMenu = ({ isOpen, setIsOpen, onLogout }) => {
-    const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // 2. سحب الداتا من الـ Context مباشرة
+    const { currentUser, loading } = useAuth();
     
-    // 2. مرجع لتحديد عنصر القائمة بالكامل
     const menuRef = useRef(null);
 
-    // 3. Effect لمراقبة النقرات الخارجية
+    // Effect مراقبة النقرات الخارجية (زي ما هو)
     useEffect(() => {
         const handleClickOutside = (event) => {
-            // إذا كانت القائمة مفتوحة والنقرة حدثت خارج نطاق الـ menuRef
             if (isOpen && menuRef.current && !menuRef.current.contains(event.target)) {
                 setIsOpen(false);
             }
         };
-
-        // إضافة المستمع عند فتح القائمة
         document.addEventListener('mousedown', handleClickOutside);
-        
-        // تنظيف المستمع عند إغلاق المكون أو تغيير الحالة لمنع تسرب الذاكرة
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen, setIsOpen]);
 
-    useEffect(() => {
-        const fetchUserData = () => {
-            setLoading(true);
-            const rawData = localStorage.getItem('rememberedUser') || sessionStorage.getItem('rememberedUser');
-
-            if (!rawData) {
-                setUserData(null);
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const parsedData = JSON.parse(rawData);
-                const userId = parsedData.id ? parsedData.id : parsedData;
-
-                if (users && users.users) {
-                    const currentUser = users.users.find(u => 
-                        String(u.id).trim() === String(userId).trim()
-                    );
-                    setUserData(currentUser || null);
-                }
-            } catch (error) {
-                console.error("Error parsing user data:", error);
-                const currentUser = users.users.find(u => String(u.id).trim() === String(rawData).trim());
-                setUserData(currentUser || null);
-            }
-            setLoading(false);
-        };
-
-        fetchUserData();
-    }, [isOpen]);
-
     return (
-        // 4. نربط الـ ref بالحاوية الرئيسية
         <div className="relative" ref={menuRef}>
             <button 
                 onClick={() => setIsOpen(!isOpen)} 
@@ -88,10 +49,12 @@ const UserMenu = ({ isOpen, setIsOpen, onLogout }) => {
                         <div className="px-4 py-3 border-b border-gray-50 bg-gray-50/50 mb-1">
                             <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Account</p>
                             <p className="text-sm font-black text-gray-900 truncate">
-                                {loading ? 'Loading...' : userData ? `${userData.firstName} ${userData.lastName}` : 'Guest User'}
+                                {/* استخدام firstName و lastName اللي في الـ Context */}
+                                {loading ? 'Loading...' : currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Guest User'}
                             </p>
                             
-                            {userData?.role === 'super_admin' && (
+                            {/* إظهار الرتبة بناءً على الداتا الحقيقية */}
+                            {(currentUser?.role === 'super_admin') && (
                                 <span className="text-[9px] text-purple-600 font-bold uppercase tracking-tighter">Super Admin</span>
                             )}
                         </div>
@@ -105,14 +68,15 @@ const UserMenu = ({ isOpen, setIsOpen, onLogout }) => {
                             Profile
                         </Link>
 
-                        {(userData?.role === 'admin' || userData?.role === 'super_admin') && (
+                        {/* صلاحيات الأدمن والـ Super Admin */}
+                        {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
                             <Link 
                                 to="/admin" 
                                 onClick={() => setIsOpen(false)}
                                 className="cursor-pointer flex items-center justify-between px-4 py-2.5 text-sm text-blue-600 font-bold hover:bg-blue-50 transition-colors border-t border-gray-50"
                             >
                                 Admin Panel
-                                {userData.role === 'super_admin' && <ShieldAlert size={14} className="text-purple-500" />}
+                                {currentUser.role === 'super_admin' && <ShieldAlert size={14} className="text-purple-500" />}
                             </Link>
                         )}
                         

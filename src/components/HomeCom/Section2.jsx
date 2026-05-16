@@ -1,9 +1,13 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
-import axios from 'axios';
 import ProductCard from '../ProductCard';
 import { Link } from 'react-router-dom';
+
+// =========================
+// 🔹 Context Variants
+// =========================
+import { useProducts } from "../../context/ProductsContext";
 
 // =========================
 // 🔹 Animation Variants
@@ -28,37 +32,25 @@ const itemVariants = {
 
 const Section2 = () => {
   const scrollRef = useRef(null);
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useProducts();
 
   // =========================
-  // 🔹 Fetch Products
+  // 🔹 فتلرة وجلب أحدث 12 منتج
   // =========================
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { data } = await axios.get(
-          'https://api.escuelajs.co/api/v1/products?offset=0&limit=12'
-        );
-
-        const formattedData = data.map((item) => ({
-          ...item,
-          images: [
-            item.images?.[0]?.replace(/[\[\]"]/g, '') || 'https://placehold.co/400x400?text=No+Image'
-          ]
-        }));
-
-        setProducts(formattedData);
-      } catch (error) {
-        console.error('❌ Error fetching products:', error);
-      } finally {
-        // تأخير بسيط جداً لإعطاء شعور بالاحترافية في الانتقال
-        setTimeout(() => setLoading(false), 600);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+  const latestProducts = useMemo(() => {
+    if (!products || products.length === 0) return [];
+    
+    // بنعمل نسخ للمصفوفة أولاً عشان .sort مش بتعدل مباشرة في الـ state الأصلية
+    return [...products]
+      .sort((a, b) => {
+        // لو الـ API بيرجع تاريخ إنشائها، رتب بالتاريخ، غير كدة رتب بالـ ID تنازلياً
+        if (a.createdAt && b.createdAt) {
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        }
+        return Number(b.id) - Number(a.id);
+      })
+      .slice(0, 12); // قطع أحدث 12 منتج فقط
+  }, [products]);
 
   // =========================
   // 🔹 Scroll Function
@@ -83,7 +75,7 @@ const Section2 = () => {
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: false }}
             className="max-w-2xl"
           >
             <div className="flex items-center gap-3 mb-4">
@@ -142,7 +134,7 @@ const Section2 = () => {
             className="flex overflow-x-auto gap-8 snap-x snap-mandatory no-scrollbar pb-16 -mx-6 px-6 lg:-mx-12 lg:px-12 scroll-smooth"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            {products.map((item) => (
+            {latestProducts.map((item) => (
               <motion.div
                 key={item.id}
                 variants={itemVariants}

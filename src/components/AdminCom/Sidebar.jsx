@@ -1,13 +1,17 @@
 import React from 'react';
-import { PackageSearch, Image as AdIcon, Users as UsersIcon, ShieldCheck, X } from 'lucide-react';
+import { PackageSearch, Image as AdIcon, Users as UsersIcon, ShieldCheck, X, MessageSquareWarning } from 'lucide-react';
 
 const Sidebar = ({ activeTab, setActiveTab, userRole, onClose }) => {
+  // مصفوفة العناصر الأساسية للسايدبار
   const menuItems = [
     { id: 'products', label: 'Edit Products', icon: <PackageSearch size={20} /> },
     { id: 'adverts', label: 'Edit Adverts', icon: <AdIcon size={20} /> },
     { id: 'users', label: 'Edit Users', icon: <UsersIcon size={20} /> },
+    // إضافة قسم الشكاوى والمقترحات هنا
+    { id: 'complaints', label: 'Complaints & Suggestions', icon: <MessageSquareWarning size={20} /> },
   ];
 
+  // إضافة صلاحيات السوبر أدمن في نهاية القائمة
   if (userRole === 'super_admin') {
     menuItems.push({ id: 'admins', label: 'Manage Admins', icon: <ShieldCheck size={20} /> });
   }
@@ -18,11 +22,6 @@ const Sidebar = ({ activeTab, setActiveTab, userRole, onClose }) => {
   };
 
   return (
-    /* تعديل الكلاسات هنا هو المفتاح:
-       1. أضفنا h-screen لجعل السايدبار بطول الشاشة دائماً.
-       2. أضفنا sticky و top-0 لضمان ثباته عند التمرير في الشاشات الكبيرة.
-       3. أضفنا z-[100] للتأكد أنه فوق الناف بار الرئيسي.
-    */
     <aside className="w-72 lg:w-64 bg-white border-r border-gray-100 flex flex-col h-screen sticky top-0 z-[100] shadow-2xl lg:shadow-none select-none">
       
       {/* Header السايدبار */}
@@ -54,7 +53,7 @@ const Sidebar = ({ activeTab, setActiveTab, userRole, onClose }) => {
             <span className={activeTab === item.id ? 'animate-pulse' : ''}>
               {item.icon}
             </span>
-            <span className="text-sm sm:text-base">{item.label}</span>
+            <span className="text-sm sm:text-base text-left">{item.label}</span>
           </button>
         ))}
       </nav>

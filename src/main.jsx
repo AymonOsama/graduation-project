@@ -32,6 +32,12 @@ import ScrollToTop from './components/ScrollToTop';
 // ----------------------------------------------------------------------
 // AUTH HELPERS & GUARDS
 // ----------------------------------------------------------------------
+import { AuthProvider } from './context/AuthContext';
+import { AdminProvider } from "./context/AdminContext";
+import { ProductsProvider } from "./context/ProductsContext";
+import { CategoriesProvider } from "./context/CategoriesContext";
+// 1. استيراد الـ ComplaintsProvider الجديد هنا
+import { ComplaintsProvider } from "./context/ComplaintsContext"; 
 
 const getAuthUserId = () => {
   const rawData = localStorage.getItem("rememberedUser") || sessionStorage.getItem("rememberedUser");
@@ -110,7 +116,19 @@ const router = createBrowserRouter([
       { path: "categoriesPgPd/:urlSlug?", element: <CategoriesPgPd /> },
       { path: "product/:id", element: <ProductPage /> },
       { path: "download-app", element: <DownloadAppPage /> },
-      { path: "admin", element: <AdminRoute><AdminPanel /></AdminRoute> },
+      
+      // 2. تغليف مسار الـ Admin بـ ComplaintsProvider لحل مشكلة الـ Context الخطأ
+      { 
+        path: "admin", 
+        element: (
+          <AdminRoute>
+            <ComplaintsProvider>
+              <AdminPanel />
+            </ComplaintsProvider>
+          </AdminRoute>
+        ) 
+      },
+      
       { path: "favorites", element: <PremiumRoute><FavoritePdPage /></PremiumRoute> },
     ],
   },
@@ -122,13 +140,23 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Toaster 
-      position="top-right" 
-      toastOptions={{
-        duration: 3000,
-        style: { fontWeight: 'bold', borderRadius: '12px', background: '#333', color: '#fff' },
-      }}
-    />
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <AdminProvider>
+        <CategoriesProvider>
+          <ProductsProvider>
+
+              <Toaster 
+                position="top-right" 
+                toastOptions={{
+                  duration: 3000,
+                  style: { fontWeight: 'bold', borderRadius: '12px', background: '#333', color: '#fff' },
+                }}
+              />
+              <RouterProvider router={router} />
+              
+          </ProductsProvider>
+        </CategoriesProvider>
+      </AdminProvider>
+    </AuthProvider>
   </React.StrictMode>
 );
